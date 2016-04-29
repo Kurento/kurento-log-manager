@@ -55,7 +55,7 @@ export class SearchAdvanceComponent {
   warnLevel:boolean = true;
   errorLevel:boolean = true;
 
-  urlElastic:string = 'http://localhost:9200/';
+  urlElastic:string = ES_URL; //'http://localhost:9200/';
   loggers:string;
   hosts:string;
   message:string;
@@ -136,9 +136,10 @@ export class SearchAdvanceComponent {
       logLevels.push('error');
     }
 
-    let url = this.urlElastic + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let index = '<kurento-*-' + from.split('T')[0].replace(/-/g,'.') + ">";
+    let url = this.urlElastic + index + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
-    console.log(this.guiquery);
+    console.log("URL:", url);
 
     let queryfrom:any;
     let queryto:any;
