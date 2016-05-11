@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main" xmlns="http://www.w3.org/1999/html">
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
@@ -6,7 +6,11 @@
           <div class="form-group form-group-sm ">
             <label>Elastic URL</label>
             <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
-                   value="http://localhost:9200/">
+                   value="">
+            <button *ngIf="showGrid" class="btn btn-sm" (click)="copyToClipboard()">
+              Copy to clipboard
+            </button>
+            <textarea *ngIf="showGrid" rows="2" cols="150" class="js-copytextarea" [(ngModel)]="urlCopied"></textarea>
           </div>
           <div class="col-md-14">
             <label>Range</label>
@@ -24,7 +28,7 @@
             </div>
             <div class="form-group form-group-sm">
               Max log entries
-              <input #maxResults type="number" class="form-control input-sm" id="max_results" value="50">
+              <input type="number" class="form-control input-sm" id="max_results" value="50" [(ngModel)]="maxResults">
             </div>
           </div>
 
@@ -51,31 +55,36 @@
                      placeholder="Search on thread">
             </div>
           </div>
-
           <div class="col-md-14">
             <label>Type</label>
-            <input #test type="checkbox" class="form-control input-sm" (change)="testType = test.checked" checked> test
-            <input #cluster type="checkbox" class="form-control input-sm" (change)="clusterType = cluster.checked"
+            <input #test type="checkbox" class="form-control input-sm" [(ngModel)]="testType"
+                   (change)="testType = test.checked"> test
+            <input #cluster type="checkbox" class="form-control input-sm" [(ngModel)]="clusterType"
+                   (change)="clusterType = cluster.checked"
                    checked> cluster
-            <input #kms type="checkbox" class="form-control input-sm" (change)="kmsType = kms.checked" checked> kms
+            <input #kms type="checkbox" class="form-control input-sm" [(ngModel)]="kmsType"
+                   (change)="kmsType = kms.checked" checked> kms
           </div>
           <div class="col-md-14">
             <label>Level</label>
-            <input #debug class="form-control input-sm" type="checkbox" (change)="debugLevel = debug.checked"
+            <input #debug class="form-control input-sm" type="checkbox" [(ngModel)]="debugLevel"
+                   (change)="debugLevel = debug.checked"
                    checked> DEBUG
-            <input #info type="checkbox" class="form-control input-sm" (change)="infoLevel = info.checked" checked> INFO
-            <input #warn type="checkbox" class="form-control input-sm" (change)="warnLevel = warn.checked" checked> WARN
-            <input #error type="checkbox" class="form-control input-sm" (change)="errorLevel = error.checked" checked>
+            <input #info type="checkbox" class="form-control input-sm" [(ngModel)]="infoLevel"
+                   (change)="infoLevel = info.checked" checked> INFO
+            <input #warn type="checkbox" class="form-control input-sm" [(ngModel)]="warnLevel"
+                   (change)="warnLevel = warn.checked" checked> WARN
+            <input #error type="checkbox" class="form-control input-sm" [(ngModel)]="errorLevel"
+                   (change)="errorLevel = error.checked" checked>
             ERROR
           </div>
-
           <div class="row">
             <div class="col-md-12">
               Tail<input #tailCheckbox type="checkbox" class="form-control input-sm"
                          (change)="tailSearch(tailCheckbox.checked)">
             </div>
           </div>
-          <button (click)="search(from.value, to.value, maxResults.value, false)" class="btn btn-default">Search
+          <button (click)="search(from.value, to.value, false)" class="btn btn-default">Search
           </button>
         </form>
       </div>

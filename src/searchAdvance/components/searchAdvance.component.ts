@@ -15,12 +15,13 @@
  *
  */
 
-import {Component} from 'angular2/core';
+import {Component, Inject} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {dateToInputLiteral, ES_URL, INDEX, RESULTS_PER_REQUEST} from './../../shared/utils/Utils';
 import {ElasticSearchService} from './../../shared/services/elasticSearch.service';
 import {GridComponent} from './../../grid/components/grid.component'
+import {RouteParams} from 'angular2/router';
 
 import 'ag-grid-enterprise/main';
 
@@ -33,8 +34,116 @@ import 'ag-grid-enterprise/main';
 })
 
 export class SearchAdvanceComponent {
-  constructor(private _elasticSearchService:ElasticSearchService) {
+  constructor(private _elasticSearchService:ElasticSearchService, @Inject(RouteParams) params:RouteParams) {
     this.showGrid = false;
+
+    let autoSearch:boolean = false;
+
+    console.log(decodeURIComponent(params.get('urlElastic')));
+    if (params.get('urlElastic') != null) {
+      this.urlElastic = decodeURIComponent(params.get('urlElastic'));
+      autoSearch = true;
+    }
+
+    if (params.get('message') != null) {
+      this.message = decodeURIComponent(params.get('message'));
+      autoSearch = true;
+    }
+
+    if (params.get('loggers') != null) {
+      this.loggers = decodeURIComponent(params.get('loggers'));
+      autoSearch = true;
+    }
+
+    if (params.get('hosts') != null) {
+      this.hosts = decodeURIComponent(params.get('hosts'));
+      autoSearch = true;
+    }
+
+    if (params.get('thread') != null) {
+      this.thread = decodeURIComponent(params.get('thread'));
+      autoSearch = true;
+    }
+
+    if (params.get('maxResults') != null) {
+      this.maxResults = decodeURIComponent(params.get('maxResults'));
+      autoSearch = true;
+    }
+
+
+    if (params.get('testType') == 'false') {
+      autoSearch = true;
+      this.testType = false;
+    } else if (params.get('testType') == 'true') {
+      autoSearch = true;
+      this.testType = true;
+    }
+
+    if (params.get('clusterType') == 'false') {
+      autoSearch = true;
+      this.clusterType = false;
+    } else if (params.get('clusterType') == 'true') {
+      autoSearch = true;
+      this.clusterType = true;
+    }
+
+    if (params.get('kmsType') == 'false') {
+      autoSearch = true;
+      this.kmsType = false;
+    } else if (params.get('kmsType') == 'true') {
+      autoSearch = true;
+      this.kmsType = true;
+    }
+
+
+    if (params.get('debugLevel') == 'false') {
+      autoSearch = true;
+      this.debugLevel = false;
+    } else if (params.get('debugLevel') == 'true') {
+      autoSearch = true;
+      this.debugLevel = true;
+    }
+
+    if (params.get('infoLevel') == 'false') {
+      autoSearch = true;
+      this.infoLevel = false;
+    } else if (params.get('infoLevel') == 'true') {
+      autoSearch = true;
+      this.infoLevel = true;
+    }
+
+    if (params.get('warnLevel') == 'false') {
+      autoSearch = true;
+      this.warnLevel = false;
+    } else if (params.get('warnLevel') == 'true') {
+      autoSearch = true;
+      this.warnLevel = true;
+    }
+
+    if (params.get('errorLevel') == 'false') {
+      autoSearch = true;
+      this.errorLevel = false;
+    } else if (params.get('errorLevel') == 'true') {
+      autoSearch = true;
+      this.errorLevel = true;
+    }
+
+    if (params.get('from') != null) {
+      autoSearch = true;
+      this.defaultFrom = new Date(Date.parse(decodeURIComponent(params.get('from'))));
+      this.defaultFrom.setTime(this.defaultFrom.getTime() + this.defaultFrom.getTimezoneOffset()*60*1000 );
+    }
+
+    if (params.get('to') != null) {
+      autoSearch = true;
+      this.defaultTo = new Date(Date.parse(decodeURIComponent(params.get('to'))));
+      this.defaultTo.setTime(this.defaultTo.getTime() + this.defaultTo.getTimezoneOffset()*60*1000 );
+    }
+
+    if (autoSearch) {
+      this.search(dateToInputLiteral(this.defaultFrom), dateToInputLiteral(this.defaultTo));
+    }
+
   }
 
   private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
@@ -55,11 +164,13 @@ export class SearchAdvanceComponent {
   warnLevel:boolean = true;
   errorLevel:boolean = true;
 
-  urlElastic:string = ES_URL; //'http://localhost:9200/';
+  urlElastic:string = 'http://localhost:9200/';
   loggers:string;
   hosts:string;
   message:string;
   thread:string;
+  maxResults:number = 50;
+  urlCopied:string;
 
 
   private processCommaSeparatedValue(value:string) {
@@ -88,6 +199,78 @@ export class SearchAdvanceComponent {
     }
   }
 
+  copyToClipboard() {
+    var copyTextarea = document.querySelector('.js-copytextarea');
+    copyTextarea.select();
+    document.execCommand("copy");
+  }
+
+  private generateCopyUrl(from, to) {
+
+    this.urlCopied = document.URL + '?';
+    if (this.urlElastic != undefined) {
+      this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
+    }
+
+    if (this.message != undefined) {
+      this.urlCopied += 'message=' + encodeURIComponent(this.message) + '&';
+    }
+
+    if (this.loggers != undefined) {
+      this.urlCopied += 'loggers=' + encodeURIComponent(this.loggers) + '&';
+    }
+
+    if (this.hosts != undefined) {
+      this.urlCopied += 'hosts=' + encodeURIComponent(this.hosts) + '&';
+    }
+
+    if (this.thread != undefined) {
+      this.urlCopied += 'thread=' + encodeURIComponent(this.thread) + '&';
+    }
+
+    if (this.maxResults != undefined) {
+      this.urlCopied += 'maxResults=' + encodeURIComponent(this.maxResults) + '&';
+    }
+
+
+    if (this.testType != undefined) {
+      this.urlCopied += 'testType=' + encodeURIComponent(this.testType) + '&';
+    }
+
+    if (this.clusterType != undefined) {
+      this.urlCopied += 'clusterType=' + encodeURIComponent(this.clusterType) + '&';
+    }
+
+    if (this.kmsType != undefined) {
+      this.urlCopied += 'kmsType=' + encodeURIComponent(this.kmsType) + '&';
+    }
+
+
+    if (this.debugLevel != undefined) {
+      this.urlCopied += 'debugLevel=' + encodeURIComponent(this.debugLevel) + '&';
+    }
+
+    if (this.infoLevel != undefined) {
+      this.urlCopied += 'infoLevel=' + encodeURIComponent(this.infoLevel) + '&';
+    }
+
+    if (this.warnLevel != undefined) {
+      this.urlCopied += 'warnLevel=' + encodeURIComponent(this.warnLevel) + '&';
+    }
+
+    if (this.errorLevel != undefined) {
+      this.urlCopied += 'errorLevel=' + encodeURIComponent(this.errorLevel) + '&';
+    }
+
+    if (from != undefined) {
+      this.urlCopied += 'from=' + encodeURIComponent(from) + '&';
+    }
+
+    if (to != null) {
+      this.urlCopied += 'to=' + encodeURIComponent(to) + '&';
+    }
+  }
+
   getDefaultFromValue() {
     return dateToInputLiteral(this.defaultFrom);
   }
@@ -96,7 +279,8 @@ export class SearchAdvanceComponent {
     return dateToInputLiteral(this.defaultTo);
   }
 
-  search(from:string, to:string, maxResults:string, append:boolean = false) {
+  search(from:string, to:string, append:boolean = false) {
+    this.generateCopyUrl(from, to);
     this.showGrid = false;
     this.waiting = true;
     this.rowData = [];
@@ -136,8 +320,8 @@ export class SearchAdvanceComponent {
       logLevels.push('error');
     }
 
-    let index = '<kurento-*-' + from.split('T')[0].replace(/-/g,'.') + ">";
-    let url = this.urlElastic + index + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let index = '<kurento-*-' + from.split('T')[0].replace(/-/g, '.') + ">";
+    let url = this.urlElastic + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log("URL:", url);
 
@@ -191,11 +375,11 @@ export class SearchAdvanceComponent {
         {'@timestamp': sort}
       ],
       query: queryes,
-      size: maxResults,
+      size: this.maxResults,
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
 
-    this._elasticSearchService.internalSearch(url, esquery, maxResults, append).subscribe(
+    this._elasticSearchService.internalSearch(url, esquery, this.maxResults, append).subscribe(
       data => {
         console.log("Data:", data);
         this.rowData = data;
