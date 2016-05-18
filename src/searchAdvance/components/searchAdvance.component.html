@@ -13,10 +13,10 @@
             <label>Index</label>
             <input type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName"
                    value="">
-            <button *ngIf="showGrid" class="btn btn-sm" (click)="copyToClipboard()">
+            <button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
               Copy to clipboard
             </button>
-            <textarea *ngIf="showGrid" rows="2" cols="150" class="js-copytextarea" [(ngModel)]="urlCopied"></textarea>
+            <textarea *ngIf="showGrid && !showPauseTail" rows="2" cols="150" class="js-copytextarea" [(ngModel)]="urlCopied"></textarea>
           </div>
           <div class="form-group form-group-sm">
             Max log entries

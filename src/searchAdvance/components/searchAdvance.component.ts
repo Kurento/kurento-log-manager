@@ -457,8 +457,9 @@ export class SearchAdvanceComponent {
 
     let index_:string = "";
 
-    if (!this.useTail) {
-      if (this.indexName == undefined || this.indexName == "") {
+
+    if (this.indexName == undefined || this.indexName == "") {
+      if (!this.useTail) {
         let today = dateToInputLiteral(new Date(new Date().valueOf()));
         let differenceFromAndToday = this.getDifferenceDates(from, today);
         let differenceTodayAndTo = this.getDifferenceDates(today, to);
@@ -474,9 +475,12 @@ export class SearchAdvanceComponent {
           }
         }
       } else {
-        index_ = this.indexName;
+        index_ = '<kurento-' + this.clusterName + '-{now%2Fd}>';
       }
+    } else {
+      index_ = this.indexName;
     }
+
     let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log("URL:", url);
