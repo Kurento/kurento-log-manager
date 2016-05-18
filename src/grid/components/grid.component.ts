@@ -38,6 +38,7 @@ const RESULTS_PER_REQUEST = 50;
 })
 
 export class GridComponent {
+
   constructor(private _elasticSearchService:ElasticSearchService, private http:Http) {
     // we pass an empty gridOptions in, so we can grab the api out
     this.gridOptions = <GridOptions>{};
@@ -97,6 +98,12 @@ export class GridComponent {
   pattern4Show:boolean = false;
   pattern5Show:boolean = false;
 
+  pattern1Found:number = 0;
+  pattern2Found:number = 0;
+  pattern3Found:number = 0;
+  pattern4Found:number = 0;
+  pattern5Found:number = 0;
+
   numPattern:number = 0;
 
   scrollLock:boolean = false;
@@ -149,30 +156,35 @@ export class GridComponent {
       this.gridOptions.context.pattern1Color = '#000000';
       this.gridOptions.context.pattern1List = [];
       this.pattern1Show = false;
+      this.pattern1Found = 0;
     } else if (pattern == 2) {
       this.pattern2 = '';
       this.gridOptions.context.pattern2 = 'NO DATA';
       this.gridOptions.context.pattern2Color = '#000000';
       this.gridOptions.context.pattern2List = [];
       this.pattern2Show = false;
+      this.pattern2Found = 0;
     } else if (pattern == 3) {
       this.pattern3 = '';
       this.gridOptions.context.pattern3 = 'NO DATA';
       this.gridOptions.context.pattern3Color = '#000000';
       this.gridOptions.context.pattern3List = [];
       this.pattern3Show = false;
+      this.pattern3Found = 0;
     } else if (pattern == 4) {
       this.pattern4 = '';
       this.gridOptions.context.pattern4 = 'NO DATA';
       this.gridOptions.context.pattern4Color = '#000000';
       this.gridOptions.context.pattern4List = [];
       this.pattern4Show = false;
+      this.pattern4Found = 0;
     } else if (pattern == 5) {
       this.pattern5 = '';
       this.gridOptions.context.pattern5 = 'NO DATA';
       this.gridOptions.context.pattern5Color = '#000000';
       this.gridOptions.context.pattern5List = [];
       this.pattern5Show = false;
+      this.pattern5Found = 0;
     }
 
     this.gridOptions.api.refreshView();
@@ -199,6 +211,11 @@ export class GridComponent {
     this.gridOptions.context.pattern3List = [];
     this.gridOptions.context.pattern4List = [];
     this.gridOptions.context.pattern5List = [];
+    this.pattern1Found = 0;
+    this.pattern2Found = 0;
+    this.pattern3Found = 0;
+    this.pattern4Found = 0;
+    this.pattern5Found = 0;
     this.posActual = -1;
     this.gridOptions.api.deselectAll();
     this.gridOptions.api.refreshView();
@@ -215,6 +232,11 @@ export class GridComponent {
     this.gridOptions.context.pattern3Color = pattern3Color;
     this.gridOptions.context.pattern4Color = pattern4Color;
     this.gridOptions.context.pattern5Color = pattern5Color;
+    this.gridOptions.context.pattern1List = [];
+    this.gridOptions.context.pattern2List = [];
+    this.gridOptions.context.pattern3List = [];
+    this.gridOptions.context.pattern4List = [];
+    this.gridOptions.context.pattern5List = [];
 
     let i:number = 0;
     this.gridOptions.rowData.map(e => {
@@ -247,6 +269,11 @@ export class GridComponent {
 
       i++;
     })
+    this.pattern1Found = this.gridOptions.context.pattern1List.length;
+    this.pattern2Found = this.gridOptions.context.pattern2List.length;
+    this.pattern3Found = this.gridOptions.context.pattern3List.length;
+    this.pattern4Found = this.gridOptions.context.pattern4List.length;
+    this.pattern5Found = this.gridOptions.context.pattern5List.length;
     this.gridOptions.api.refreshView();
   }
 

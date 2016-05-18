@@ -28,11 +28,11 @@
           </button>
           <form class="form-inline">
             <div class="col-md-14">
-
               <div [style.display]="pattern1Show ?'':'none'" class="form-group form-group-sm patternDiv">
                 <input #messageCmp class="form-control input-sm" id="pattern1" value="" [(ngModel)]="pattern1"
                        placeholder="Search on message">
-                <button (click)="removePattern(1)" type="button" class="close buttonClose">&times;</button>
+                <label class="patternFound">Found {{pattern1Found}}</label>
+                <a href="#" (click)="removePattern(1)" class="close buttonClose" aria-label="close">&times;</a>
                 <div class="col-md-12 buttonPatternDiv">
                   <input #pattern1Color type="color" name="favcolor" value="#ff0000" id="pattern1Color">
                   <button
@@ -47,8 +47,8 @@
               <div [style.display]="pattern2Show ?'':'none'" class="form-group form-group-sm patternDiv">
                 <input #messageCmp class="form-control input-sm" id="pattern2" value="" [(ngModel)]="pattern2"
                        placeholder="Search on message">
+                <label class="patternFound">Found {{pattern2Found}}</label>
                 <button (click)="removePattern(2)" type="button" class="close buttonClose">&times;</button>
-
                 <div class="col-md-12 buttonPatternDiv">
 
                   <input #pattern2Color type="color" name="favcolor" value="#00ff00" id="pattern2Color">
@@ -64,6 +64,7 @@
               <div [style.display]="pattern3Show ?'':'none'" class="form-group form-group-sm patternDiv">
                 <input #messageCmp class="form-control input-sm" id="pattern3" value="" [(ngModel)]="pattern3"
                        placeholder="Search on message">
+                <label class="patternFound">Found {{pattern3Found}}</label>
                 <button (click)="removePattern(3)" type="button" class="close buttonClose">&times;</button>
 
                 <div class="col-md-12 buttonPatternDiv">
@@ -80,6 +81,7 @@
               <div [style.display]="pattern4Show ?'':'none'" class="form-group form-group-sm patternDiv">
                 <input #messageCmp class="form-control input-sm" id="pattern4" value="" [(ngModel)]="pattern4"
                        placeholder="Search on message">
+                <label class="patternFound">Found {{pattern4Found}}</label>
                 <button (click)="removePattern(4)" type="button" class="close buttonClose">&times;</button>
 
                 <div class="col-md-12 buttonPatternDiv">
@@ -95,6 +97,7 @@
               <div [style.display]="pattern5Show ?'':'none'" class="form-group form-group-sm patternDiv">
                 <input #messageCmp class="form-control input-sm" id="pattern5" value="" [(ngModel)]="pattern5"
                        placeholder="Search on message">
+                <label class="patternFound">Found {{pattern5Found}}</label>
                 <button (click)="removePattern(5)" type="button" class="close buttonClose">&times;</button>
                 <div class="col-md-12 buttonPatternDiv">
                   <input #pattern5Color type="color" name="favcolor" value="#ffff00" id="pattern5Color">

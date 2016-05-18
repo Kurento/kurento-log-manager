@@ -86,7 +86,7 @@
 
 .patternDiv {
   margin: 6px 4px 7px 0px;
-  width: 216px !important;
+  width: 260px !important;
 }
 
 .buttonPatternDiv {
@@ -94,6 +94,10 @@
 }
 
 .buttonClose {
-  margin: -16px 51px 0px 0px!important;
+  margin: -37px 98px 0px 0px!important;
+}
+
+.patternFound {
+  margin-left: 15px;
 }
 
