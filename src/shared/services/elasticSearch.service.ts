@@ -57,6 +57,21 @@ export class ElasticSearchService {
         console.error("Error:", err);
       });
   }
+
+  getIndices(url:string) {
+
+    let requestoptions = new RequestOptions({
+      method: RequestMethod.Get,
+      url
+    })
+
+    return this.http.request(new Request(requestoptions))
+      .map((res:Response) => {
+        return res.json();
+      }, (err:Response) => {
+        console.error("Error:", err);
+      });
+  }
 }
 /**
  * Created by rbenitez on 19/4/16.

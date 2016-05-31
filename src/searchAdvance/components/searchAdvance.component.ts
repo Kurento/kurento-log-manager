@@ -157,7 +157,12 @@ export class SearchAdvanceComponent {
       this.search(dateToInputLiteral(this.defaultFrom), dateToInputLiteral(this.defaultTo));
     }
 
+    let url = this.urlElastic + "_mapping";
+    this.updateIndices(url);
   }
+
+  private indices = [];
+  private clusterSelected;
 
   private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
   private defaultTo = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
@@ -197,6 +202,55 @@ export class SearchAdvanceComponent {
   tailInterval;
 
 
+  private updateIndices(url:string) {
+    this.indices = [];
+    this._elasticSearchService.getIndices(url).subscribe(
+      data => {
+        Object.keys(data).sort().map(e => {
+
+            if (e.split('-').length == 3) {
+              let cluster:string = e.split('-')[1];
+              let date:string = e.split('-')[2];
+              let elementExist = this.indices.filter(function (e) {
+                return e.cluster.name == cluster
+              });
+
+              if (elementExist.length == 0) {
+
+                let element = {
+                  "cluster": {
+                    "name": cluster,
+                    "dates": {
+                      "init": date,
+                      "end": date
+                    }
+                  }
+                };
+                this.indices.push(element)
+              } else {
+                elementExist[0].cluster.dates.end = date;
+              }
+            }
+          }
+        )
+        let elementEmpty = {
+          "cluster": {
+            "name": '----',
+            "dates": {
+              "init": '',
+              "end": ''
+            }
+          }
+        };
+        this.indices.push(elementEmpty);
+        this.indices.sort();
+      },
+      err => {
+
+      }
+    )
+  }
+
   private processCommaSeparatedValue(value:string) {
     if (value === undefined) {
       return [];
@@ -213,15 +267,15 @@ export class SearchAdvanceComponent {
     let filter:any = {}
     if (values.length > 1) {
       filter[field] = values;
-      //queryes.indices.query.filtered.filter.bool.must.push({
-      queryes.filtered.filter.bool.must.push({
+      queryes.indices.query.filtered.filter.bool.must.push({
+        //queryes.filtered.filter.bool.must.push({
         "terms": filter
       })
     } else if (values.length == 1) {
       filter[field] = values[0];
       let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
-      queryes.filtered.filter.bool.must.push(JSON.parse(filterValue));
-      //queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue))
+      //queryes.filtered.filter.bool.must.push(JSON.parse(filterValue));
+      queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue))
     }
   }
 
@@ -303,6 +357,31 @@ export class SearchAdvanceComponent {
     if (to != null) {
       this.urlCopied += 'to=' + encodeURIComponent(to) + '&';
     }
+  }
+
+  updateclusterSelected(event:Event):void {
+    const value:string = (<HTMLSelectElement>event.srcElement).value;
+    if (value !== '----') {
+      let cluster = this.indices.filter(function (e) {
+        return e.cluster.name == value
+      });
+
+      this.defaultFrom = new Date(Date.parse(cluster[0].cluster.dates.init) + 60 * 60 * 1000);
+      this.defaultFrom.setTime(this.defaultFrom.getTime());
+
+      this.defaultTo = new Date(Date.parse(cluster[0].cluster.dates.end) + (23 * 60 * 60 * 1000) + (59 * 60 * 1000) + 59 * 1000);
+      this.defaultTo.setTime(this.defaultTo.getTime());
+
+      this.clusterSelected = value;
+      this.clusterName = value;
+    } else {
+      this.clusterName = "";
+    }
+  }
+
+  updateUrlElastic(event:Event):void {
+    const value:string = (<HTMLSelectElement>event.srcElement).value;
+    this.updateIndices(value + "_mapping");
   }
 
   getDefaultFromValue() {
@@ -434,29 +513,53 @@ export class SearchAdvanceComponent {
       }
     }
 
-    let queryes:any = {
-      "filtered": {
-        "filter": {
-          "bool": {
-            "must": [
-              {
-                "range": {
-                  "@timestamp": {
-                    "gte": queryfrom,
-                    "lte": queryto
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
+    /*let queryes:any = {
+     "filtered": {
+     "filter": {
+     "bool": {
+     "must": [
+     {
+     "range": {
+     "@timestamp": {
+     "gte": queryfrom,
+     "lte": queryto
+     }
+     }
+     }
+     ]
+     }
+     }
+     }
+     }*/
 
 //    let index = 'kurento-' + this.clusterName + '-' + from.split('T')[0].replace(/-/g, '.');
 
-    let index_:string = "";
+    let queryes:any = {
+      "indices": {
+        "indices": [],
+        "query": {
+          "filtered": {
+            "filter": {
+              "bool": {
+                "must": [
+                  {
+                    "range": {
+                      "@timestamp": {
+                        "gte": queryfrom,
+                        "lte": queryto
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "no_match_query": "none"
+      }
+    }
 
+    let index_:string = "";
 
     if (this.indexName == undefined || this.indexName == "") {
       if (!this.useTail) {
@@ -465,31 +568,40 @@ export class SearchAdvanceComponent {
         let differenceTodayAndTo = this.getDifferenceDates(today, to);
 
         for (var i = differenceFromAndToday; i >= differenceTodayAndTo; i--) {
-          if (i == 0) {
-            index_ += '<kurento-' + this.clusterName + '-{now%2Fd}>';
-          } else {
-            index_ += '<kurento-' + this.clusterName + '-{now%2Fd-' + i + 'd}>';
-            if (i != differenceTodayAndTo) {
-              index_ += ',';
-            }
-          }
+          let date = new Date()
+          date.setDate(date.getDate() - i);
+          index_ = 'kurento-' + this.clusterName + '-' + dateToInputLiteral(date).split('T')[0].replace(/-/g, '.');
+          queryes.indices.indices.push(index_);
+
+          /*if (i == 0) {
+           index_ += 'kurento-' + this.clusterName + '-{now%2Fd}';
+           } else {
+           index_ += 'kurento-' + this.clusterName + '-{now%2Fd-' + i + 'd}';
+           if (i != differenceTodayAndTo) {
+           index_ += ',';
+           }
+           }*/
         }
       } else {
-        index_ = '<kurento-' + this.clusterName + '-{now%2Fd}>';
+        let today = dateToInputLiteral(new Date(new Date().valueOf()));
+        index_ = 'kurento-' + this.clusterName + '-' + today.split('T')[0].replace(/-/g, '.');
+        queryes.indices.indices.push(index_);
       }
     } else {
       index_ = this.indexName;
+      queryes.indices.indices.push(index_);
     }
 
-    let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    // let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let url = this.urlElastic + '_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log("URL:", url);
 
     // Create index
 
-    /* let queryes:any = {
+    /*    let queryes:any = {
      "indices": {
-     "indices": [index],
+     "indices": [index_],
      "query": {
      "filtered": {
      "filter": {
@@ -527,7 +639,7 @@ export class SearchAdvanceComponent {
     let thread = this.processCommaSeparatedValue(this.thread);
     this.addTermFilter(queryes, 'threadid', thread);
 
-    console.log("Query: ", queryes);
+    console.log("Query: ", JSON.stringify(queryes));
     console.log('-----------------------------------------------------------------');
 
     let esquery = {
@@ -589,6 +701,7 @@ export class SearchAdvanceComponent {
               if (prevSize == 0) {
                 this.rowData.push(logValue);
               } else {
+                console.log(this.rowData[prevSize - 1].time === logValue.time, this.rowData[prevSize - 1].message === logValue.message)
                 if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
                   // this.rowData = this.rowData.slice();
                   continue

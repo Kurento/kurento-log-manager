@@ -19,10 +19,13 @@
             <div class="form-group form-group-sm ">
               <label>Elastic URL</label>
               <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
-                     value="">
+                     value="" (change)="updateUrlElastic($event)">
               <label>Cluster Name</label>
-              <input type="string" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName"
-                     value="">
+              <select [(ngModel)]="clusterSelected" (change)="updateclusterSelected($event)">
+                <option *ngFor="#c of indices" [value]="c.cluster.name">{{c.cluster.name}}</option>
+              </select>
+              <input type="text" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName"
+                     value="" readonly>
               <label>Index</label>
               <input type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName"
                      value="">
