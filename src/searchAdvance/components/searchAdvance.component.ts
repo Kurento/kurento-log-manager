@@ -366,11 +366,8 @@ export class SearchAdvanceComponent {
         return e.cluster.name == value
       });
 
-      this.defaultFrom = new Date(Date.parse(cluster[0].cluster.dates.init) + 60 * 60 * 1000);
-      this.defaultFrom.setTime(this.defaultFrom.getTime());
-
+      this.defaultFrom = new Date(Date.UTC(cluster[0].cluster.dates.init.split('.')[0], (cluster[0].cluster.dates.init.split('.')[1] - 1), cluster[0].cluster.dates.init.split('.')[2], 0, 0, 0));
       this.defaultTo = new Date(Date.parse(cluster[0].cluster.dates.end) + (23 * 60 * 60 * 1000) + (59 * 60 * 1000) + 59 * 1000);
-      this.defaultTo.setTime(this.defaultTo.getTime());
 
       this.clusterSelected = value;
       this.clusterName = value;

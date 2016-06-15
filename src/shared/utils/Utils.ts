@@ -19,7 +19,7 @@ export function dateToInputLiteral(date: Date) {
   return date.getUTCFullYear() + '-' +
     pad(date.getUTCMonth() + 1, 2) + '-' +
     pad(date.getUTCDate(), 2) + 'T' +
-    pad(date.getHours(), 2) + ':' +
+    pad(date.getUTCHours(), 2) + ':' +
     pad(date.getMinutes(), 2) + ':' +
     pad(date.getSeconds(), 2);
 }
