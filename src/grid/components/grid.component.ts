@@ -255,6 +255,7 @@ export class GridComponent {
     this.gridOptions.context.pattern3List = [];
     this.gridOptions.context.pattern4List = [];
     this.gridOptions.context.pattern5List = [];
+    this.posActual = -1;
 
     let i:number = 0;
     this.gridOptions.rowData.map(e => {
@@ -292,6 +293,18 @@ export class GridComponent {
     this.pattern3Found = this.gridOptions.context.pattern3List.length;
     this.pattern4Found = this.gridOptions.context.pattern4List.length;
     this.pattern5Found = this.gridOptions.context.pattern5List.length;
+    if (this.pattern1Found > 0) {
+      this.next(1);
+    } else if (this.pattern2Found > 0) {
+      this.next(2);
+    } else if (this.pattern3Found > 0) {
+      this.next(3);
+    } else if (this.pattern4Found > 0) {
+      this.next(4);
+    } else if (this.pattern5Found > 0) {
+      this.next(5);
+    }
+
     this.gridOptions.api.refreshView();
   }
 
