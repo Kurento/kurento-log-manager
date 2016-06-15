@@ -537,6 +537,14 @@ export class GridComponent {
       return css;
     }
 
+    let colorsByElements = [];
+    function getColor(n) {
+      var colores_g = ["#80aaff", "#7fe6da", "#74c476", "#a1d99b", "#c7e9c0", "#e66a6a", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9dddd",
+        "#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#756bb1", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"
+      ];
+      return colores_g[n % colores_g.length];
+    }
+    let n = 0;
 
     let cellStyle = function (params) {
       let css:any = {};
@@ -560,6 +568,17 @@ export class GridComponent {
       {
         headerName: 'Time', width: 200, checkboxSelection: false, suppressSorting: true, field: "time",
         suppressMenu: true, pinned: false, cellStyle: cellStyleCenter
+      },
+      {
+        headerName: 'Node', width: 60, checkboxSelection: false, suppressSorting: true, field: "node",
+        suppressMenu: true, pinned: false, cellStyle: function (params) {
+        if (colorsByElements[params.data.host] == undefined) {
+          colorsByElements[params.data.host] = getColor(n);
+          n++;
+        }
+        return {'background-color': '' + colorsByElements[params.data.host] + '', 'border-color':  'black', 'border-top' :'1px',
+        'border-left' :'1px'};
+      }
       },
       {
         headerName: 'Level', width: 60, checkboxSelection: false, suppressSorting: true, field: "level",
