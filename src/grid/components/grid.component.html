@@ -32,7 +32,7 @@
                 <input #messageCmp class="form-control input-sm" id="pattern1" value="" [(ngModel)]="pattern1"
                        placeholder="Search on message">
                 <label class="patternFound">Found {{pattern1Found}}</label>
-                <a href="#" (click)="removePattern(1)" class="close buttonClose" aria-label="close">&times;</a>
+                <button (click)="removePattern(1)" class="close buttonClose" aria-label="close">&times;</button>
                 <div class="col-md-12 buttonPatternDiv">
                   <input #pattern1Color type="color" name="favcolor" value="#ff0000" id="pattern1Color">
                   <button
