@@ -277,10 +277,15 @@ export class SearchAdvanceComponent {
         "terms": filter
       })
     } else if (values.length == 1) {
-      filter[field] = values[0];
-      let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
-      //queryes.filtered.filter.bool.must.push(JSON.parse(filterValue));
-      queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue))
+      if (field == "message") {
+        let filterValue = "{\"multi_match\": {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\", \"fields\": [\"message\", \"logmessage\"] }}";
+        queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue));
+      } else {
+        filter[field] = values[0];
+        let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
+        //queryes.filtered.filter.bool.must.push(JSON.parse(filterValue));
+        queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue));
+      }
     }
   }
 
@@ -438,6 +443,10 @@ export class SearchAdvanceComponent {
     this.dataForAdding = event;
   }
 
+  updateRows(event) {
+    this.rowData = event;
+  }
+
   clearData() {
     this.rowData = [];
     clearInterval(this.tailInterval);
@@ -456,7 +465,7 @@ export class SearchAdvanceComponent {
     if (to == undefined) {
       to = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
     }
-    this.search(from, to, true, position)
+    this.search(from, to, true, position + 1)
   }
 
 
@@ -615,7 +624,7 @@ export class SearchAdvanceComponent {
     }
 
     // let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
-    let url = this.urlElastic + '_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let url = this.urlElastic + '_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type,hits';
 
     console.log("URL:", url);
 
@@ -670,6 +679,18 @@ export class SearchAdvanceComponent {
       ],
       query: queryes,
       size: this.maxResults,
+      highlight: {
+        pre_tags: ["<b><i>"],
+        post_tags: ["</i></b>"],
+        fields: {
+          message: {},
+          host: {},
+          threadid: {},
+          loggername: {},
+          loglevel: {},
+          logmessage: {}
+        }
+      },
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
 
@@ -697,7 +718,11 @@ export class SearchAdvanceComponent {
 
         if (data.hits !== undefined && data.hits.hits.length === 0 && this.rowData.length == 0) {
           console.log("Returned response without results. Aborting");
-          return;
+          this.rowData = []
+          this.rowData = this.rowData.slice();
+          this.showGrid = true;
+          this.waiting = false;
+          return
         }
 
         let initPosition:number = -1;
@@ -715,7 +740,7 @@ export class SearchAdvanceComponent {
             this.noMore = false;
 
 
-          if (position != -1){
+          if (position != -1) {
             initPosition = position;
           }
 
@@ -723,28 +748,45 @@ export class SearchAdvanceComponent {
             let urlCode = getGerritUrl(logEntry._source.loggername, 1)
             let type = logEntry._type;
             let time = logEntry._source['@timestamp'];
-            let message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
+            let message = ""
+            let currentMessage = message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
+            if (logEntry.highlight.logmessage != undefined || logEntry.highlight.message != undefined) {
+              message = type == 'cluster' || type == 'kms' ? logEntry.highlight.logmessage[0] : logEntry.highlight.message[0];
+            } else {
+              message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
+            }
             let level = logEntry._source.loglevel;
             let thread = logEntry._source.threadid;
+            if (logEntry.highlight.threadid != undefined) {
+              thread = logEntry.highlight.threadid[0];
+            }
             let logger = logEntry._source.loggername;
+            if (logEntry.highlight.loggername != undefined) {
+              logger = logEntry.highlight.loggername[0];
+            }
+
             let host = logEntry._source.host;
+            if (logEntry.highlight.host != undefined) {
+              host = logEntry.highlight.host[0];
+            }
 
             let logValue = {urlCode, type, time, message, level, thread, logger, host};
 
             if (append) {
               if (position != -1) {
-                if (this.rowData[position] != undefined && ((this.rowData[position].message.indexOf("Sub-Search") > -1) || (this.rowData[position].time === logValue.time && this.rowData[position].message === logValue.message))) {
-                  position ++;
+                let positionMessage = this.rowData[position].message.replace("<b><i>", "").replace("</b></i>", "");
+                if (this.rowData[position] != undefined && ((this.rowData[position].message.indexOf("Sub-Search") > -1) || (this.rowData[position].time === logValue.time && positionMessage === currentMessage))) {
+                  position++;
                   continue
                 }
                 this.rowData.splice(position, 0, logValue)
-                position ++;
-              }else {
+                position++;
+              } else {
                 if (prevSize == 0) {
                   this.rowData.push(logValue);
                 } else {
-                  console.log(this.rowData[prevSize - 1].time === logValue.time, this.rowData[prevSize - 1].message === logValue.message)
-                  if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
+                  let prevMessage = this.rowData[prevSize - 1].message.replace("<b><i>", "").replace("</b></i>", "");
+                  if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === currentMessage) {
                     continue
                   }
                   this.rowData.push(logValue);
@@ -755,7 +797,7 @@ export class SearchAdvanceComponent {
             }
           }
           if (position != -1) {
-            if (position - initPosition == 2){
+            if (position - initPosition == 2) {
               endPosition = position;
             } else {
               endPosition = position + 1;
