@@ -15,7 +15,7 @@
  *
  */
 
-import {Component, Input} from 'angular2/core';
+import {Component, Input, Output, EventEmitter} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {getGerritUrl} from './../../shared/utils/Utils';
@@ -75,6 +75,9 @@ export class GridComponent {
   @Input() rowData:any[] = [];
   @Input() waiting:boolean = false;
   @Input() showGrid:boolean = false;
+
+  @Output() updateDates:EventEmitter = new EventEmitter();
+  @Output() updateRows:EventEmitter = new EventEmitter();
 
   // Grid
   private gridOptions:GridOptions;
@@ -538,12 +541,14 @@ export class GridComponent {
     }
 
     let colorsByElements = [];
+
     function getColor(n) {
       var colores_g = ["#80aaff", "#7fe6da", "#74c476", "#a1d99b", "#c7e9c0", "#e66a6a", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9dddd",
         "#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#756bb1", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"
       ];
       return colores_g[n % colores_g.length];
     }
+
     let n = 0;
 
     let cellStyle = function (params) {
@@ -576,8 +581,12 @@ export class GridComponent {
           colorsByElements[params.data.host] = getColor(n);
           n++;
         }
-        return {'background-color': '' + colorsByElements[params.data.host] + '', 'border-color':  'black', 'border-top' :'1px',
-        'border-left' :'1px'};
+        return {
+          'background-color': '' + colorsByElements[params.data.host] + '',
+          'border-color': 'black',
+          'border-top': '1px',
+          'border-left': '1px'
+        };
       }
       },
       {
@@ -590,12 +599,30 @@ export class GridComponent {
       },
       {
         headerName: 'Thread', width: 170, checkboxSelection: false, suppressSorting: true, field: "thread",
-        suppressMenu: true, pinned: false, cellStyle: cellStyle
+        suppressMenu: true, pinned: false, cellRenderer: function (params) {
+        if (params.data.thread != undefined && params.data.thread.indexOf('REMOVE') > -1) {
+          return '<span class="label label-info" style="cursor:pointer">' + (params.data.thread == undefined ? '' : params.data.thread) + '</span>';
+        } else {
+          return '<span style="text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.thread == undefined ? '' : params.data.thread) + '</span>';
+        }
+      }, cellStyle: function(params) {
+        if (params.data.thread != undefined && params.data.thread.indexOf('REMOVE') > -1) {
+          return cellStyleCenter(params);
+        }else {
+          return cellStyle(params);
+        }
+      }
       },
       {
         headerName: 'Message', width: 600, checkboxSelection: false, suppressSorting: true, field: "message",
         suppressMenu: true, pinned: false, cellRenderer: function (params) {
-        return '<span style="text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
+        if (params.data.message.indexOf('Init Sub-Search') > -1) {
+          return '<span style="color: green;font-weight:bold; text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
+        } else if (params.data.message.indexOf('End Sub-Search') > -1) {
+          return '<span style="color: red;font-weight:bold; text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
+        } else {
+          return '<span style="text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
+        }
       }, cellStyle: cellStyle, focusCell: true
       },
       {
@@ -607,6 +634,19 @@ export class GridComponent {
         suppressMenu: true, pinned: false, cellStyle: cellStyle
       }
     ];
+  }
+
+  cleanSubSearch(rowId:number, searchId:number) {
+    while (this.rowData[rowId + 1] != undefined) {
+      if (this.rowData[rowId + 1].message.indexOf(searchId) > -1){
+        this.rowData.splice(rowId + 1, 1);
+        break;
+      }
+      this.rowData.splice(rowId + 1, 1);
+    }
+    this.rowData.splice(rowId, 1);
+    this.rowData = this.rowData.slice();
+    this.updateRows.emit(this.rowData);
   }
 
   private closeModal() {
@@ -647,6 +687,10 @@ export class GridComponent {
     this.currentRowSelectected = $event.rowIndex;
     this.gridOptions.api.selectIndex($event.rowIndex);
     this.gridOptions.api.ensureIndexVisible($event.rowIndex);
+
+    if ($event.colDef.headerName == "Thread" && $event.data.thread != undefined && $event.data.thread.indexOf('REMOVE') > -1) {
+      this.cleanSubSearch($event.rowIndex, $event.data.message.split(" ")[2])
+    }
   }
 
   private onCellValueChanged($event) {
@@ -668,6 +712,28 @@ export class GridComponent {
   private onRowSelected($event) {
     if ($event.node.selected) {
       this.currentRowSelectected = $event.node.id;
+
+      let initDate:String = this.rowData[$event.node.id].time;
+      let endDate:String;
+      let i:number = 1;
+      do {
+        let endRow = this.rowData[$event.node.id + i];
+        if (endRow != undefined) {
+          endDate = endRow.time;
+        }
+        if (endDate == "") {
+          endDate = undefined;
+        }
+        i++;
+      } while (i < this.rowData.length && endDate == undefined)
+
+      let event = {
+        position: $event.node.id,
+        initDate: initDate,
+        endDate: endDate
+      }
+      // Emit event for seachAdvance can update the dates for adding more data from position and using initDate and endDate
+      this.updateDates.emit(event);
     }
   }
 

@@ -171,8 +171,10 @@
           <div>
             <button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
             </button>
-            <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load
+            <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)" class="btn btn-default">Load
               More
+            </button>
+            <button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)" class="btn btn-default">Add more from row selected
             </button>
             <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm"
                    (change)="tailSearch(!tail.checked)"> <label *ngIf="showPauseTail">Pause Tail</label>
@@ -184,7 +186,7 @@
           </div>
         </form>
       </div>
-      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
+      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid" (updateDates)="updateDatesForMoreDate($event)" (updateRows)="updateRows($event)"></sd-grid>
       <div *ngIf="showError" class="alert alert-danger">
         {{errorMsg}}
       </div>

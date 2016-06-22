@@ -36,6 +36,7 @@ import 'ag-grid-enterprise/main';
 export class SearchAdvanceComponent {
   private _scroll_id;
   private noMore = false;
+  private dataForAdding;
 
   constructor(private _elasticSearchService:ElasticSearchService, @Inject(RouteParams) params:RouteParams) {
     this.showGrid = false;
@@ -143,14 +144,18 @@ export class SearchAdvanceComponent {
 
     if (params.get('from') != null) {
       autoSearch = true;
-      this.defaultFrom = new Date(Date.parse(decodeURIComponent(params.get('from'))));
-      this.defaultFrom.setTime(this.defaultFrom.getTime() + this.defaultFrom.getTimezoneOffset() * 60 * 1000);
+      let dates = decodeURIComponent(params.get('from')).split("T");
+      let fromDate = dates[0].split("-");
+      let fromHour = dates[1].split(":");
+      this.defaultFrom = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
     }
 
     if (params.get('to') != null) {
       autoSearch = true;
-      this.defaultTo = new Date(Date.parse(decodeURIComponent(params.get('to'))));
-      this.defaultTo.setTime(this.defaultTo.getTime() + this.defaultTo.getTimezoneOffset() * 60 * 1000);
+      let dates = decodeURIComponent(params.get('to')).split("T");
+      let fromDate = dates[0].split("-");
+      let fromHour = dates[1].split(":");
+      this.defaultTo = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
     }
 
     if (autoSearch) {
@@ -429,6 +434,10 @@ export class SearchAdvanceComponent {
     this.useTail = tail;
   }
 
+  updateDatesForMoreDate(event) {
+    this.dataForAdding = event;
+  }
+
   clearData() {
     this.rowData = [];
     clearInterval(this.tailInterval);
@@ -440,8 +449,18 @@ export class SearchAdvanceComponent {
     this._scroll_id = "";
   }
 
+  addMore() {
+    let position = this.dataForAdding.position;
+    let from = this.dataForAdding.initDate;
+    let to = this.dataForAdding.endDate;
+    if (to == undefined) {
+      to = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
+    }
+    this.search(from, to, true, position)
+  }
 
-  search(from:string, to:string, append:boolean = false) {
+
+  search(from:string, to:string, append:boolean = false, position:number = -1) {
     this.generateCopyUrl(from, to);
     if (!append) {
       this.showGrid = false;
@@ -657,14 +676,15 @@ export class SearchAdvanceComponent {
     if (!append) {
       this.rowData = [];
     }
-    if (append) {
+
+    if (append && position == -1) {
       if (!this.noMore) {
         if (this.rowData.length > 0) {
           url = this.urlElastic + "/_search/scroll"
           esquery = {scroll: '1m', scroll_id: this._scroll_id};
         }
       } else {
-        esquery.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
+        esquery.query.indices.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
       }
     }
 
@@ -680,13 +700,24 @@ export class SearchAdvanceComponent {
           return;
         }
 
+        let initPosition:number = -1;
+        let endPosition:number = -1;
+
         if (data.hits) {
           console.log("Data hits size:", data.hits.hits.length)
-          let prevSize = this.rowData.length;
+          let prevSize:number = position;
+          if (position == -1) {
+            prevSize = this.rowData.length;
+          }
           if (data.hits.hits.length === 0)
             this.noMore = true;
           else
             this.noMore = false;
+
+
+          if (position != -1){
+            initPosition = position;
+          }
 
           for (let logEntry of data.hits.hits) {
             let urlCode = getGerritUrl(logEntry._source.loggername, 1)
@@ -701,19 +732,50 @@ export class SearchAdvanceComponent {
             let logValue = {urlCode, type, time, message, level, thread, logger, host};
 
             if (append) {
-              if (prevSize == 0) {
-                this.rowData.push(logValue);
-              } else {
-                console.log(this.rowData[prevSize - 1].time === logValue.time, this.rowData[prevSize - 1].message === logValue.message)
-                if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
-                  // this.rowData = this.rowData.slice();
+              if (position != -1) {
+                if (this.rowData[position] != undefined && ((this.rowData[position].message.indexOf("Sub-Search") > -1) || (this.rowData[position].time === logValue.time && this.rowData[position].message === logValue.message))) {
+                  position ++;
                   continue
                 }
-                this.rowData.push(logValue);
+                this.rowData.splice(position, 0, logValue)
+                position ++;
+              }else {
+                if (prevSize == 0) {
+                  this.rowData.push(logValue);
+                } else {
+                  console.log(this.rowData[prevSize - 1].time === logValue.time, this.rowData[prevSize - 1].message === logValue.message)
+                  if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
+                    continue
+                  }
+                  this.rowData.push(logValue);
+                }
               }
             } else {
               this.rowData.push(logValue);
             }
+          }
+          if (position != -1) {
+            if (position - initPosition == 2){
+              endPosition = position;
+            } else {
+              endPosition = position + 1;
+            }
+            let urlCode = "";
+            let type = "";
+            let time = "";
+            let random = Math.floor((Math.random() * 10000) + 1);
+            let message = "Init Sub-Search: " + random;
+            let level = "";
+            let thread = "REMOVE";
+            let logger = "";
+            let host = "";
+
+            let logValue = {urlCode, type, time, message, level, thread, logger, host};
+            this.rowData.splice(initPosition, 0, logValue)
+            message = "End Sub-Search: " + random;
+            thread = "";
+            logValue = {urlCode, type, time, message, level, thread, logger, host};
+            this.rowData.splice(endPosition, 0, logValue)
           }
           if (data.hits.hits.length > 0) {
             this.rowData = this.rowData.slice();
