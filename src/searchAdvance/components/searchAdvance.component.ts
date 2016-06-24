@@ -742,6 +742,8 @@ export class SearchAdvanceComponent {
 
           if (position != -1) {
             initPosition = position;
+            position --;
+            console.log("Init:", initPosition)
           }
 
           for (let logEntry of data.hits.hits) {
@@ -749,9 +751,18 @@ export class SearchAdvanceComponent {
             let type = logEntry._type;
             let time = logEntry._source['@timestamp'];
             let message = ""
-            let currentMessage = message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
+
             if (logEntry.highlight.logmessage != undefined || logEntry.highlight.message != undefined) {
-              message = type == 'cluster' || type == 'kms' ? logEntry.highlight.logmessage[0] : logEntry.highlight.message[0];
+              if (type == 'cluster' || type == 'kms') {
+                for (let i=0; i<logEntry.highlight.logmessage.length; i++){
+                  message = message.concat(logEntry.highlight.logmessage[i]);
+                }
+              }else {
+                for (let i=0; i<logEntry.highlight.message.length; i++) {
+                  message = message.concat(logEntry.highlight.message[i]);
+                }
+              }
+              //message = type == 'cluster' || type == 'kms' ? logEntry.highlight.logmessage[0] : logEntry.highlight.message[0];
             } else {
               message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
             }
@@ -774,8 +785,13 @@ export class SearchAdvanceComponent {
 
             if (append) {
               if (position != -1) {
-                let positionMessage = this.rowData[position].message.replace("<b><i>", "").replace("</b></i>", "");
-                if (this.rowData[position] != undefined && ((this.rowData[position].message.indexOf("Sub-Search") > -1) || (this.rowData[position].time === logValue.time && positionMessage === currentMessage))) {
+                //console.log("this.rowData", this.rowData[position], position)
+                while (this.rowData[position].message.indexOf("Sub-Search") > -1) {
+                  position++;
+                }
+                let positionMessage = this.rowData[position].message.replace("<b><i>", "").replace("</i></b>", "");
+                //console.log("---->", position, ";", logValue.time,";", message)
+                if (this.rowData[position] != undefined && ((this.rowData[position].time === logValue.time && positionMessage === message.replace("<b><i>", "").replace("</i></b>", "")))) {
                   position++;
                   continue
                 }
@@ -785,8 +801,8 @@ export class SearchAdvanceComponent {
                 if (prevSize == 0) {
                   this.rowData.push(logValue);
                 } else {
-                  let prevMessage = this.rowData[prevSize - 1].message.replace("<b><i>", "").replace("</b></i>", "");
-                  if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === currentMessage) {
+                  let prevMessage = this.rowData[prevSize - 1].message.replace("<b><i>", "").replace("</i></b>", "");
+                 if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === message.replace("<b><i>", "").replace("</i></b>", "")) {
                     continue
                   }
                   this.rowData.push(logValue);
@@ -797,7 +813,8 @@ export class SearchAdvanceComponent {
             }
           }
           if (position != -1) {
-            if (position - initPosition == 2) {
+            console.log("Position:", position, initPosition, position - initPosition)
+            if (position - initPosition == 1) {
               endPosition = position;
             } else {
               endPosition = position + 1;
@@ -821,6 +838,38 @@ export class SearchAdvanceComponent {
           }
           if (data.hits.hits.length > 0) {
             this.rowData = this.rowData.slice();
+            /*this.rowData =  this.rowData.filter(function(item, pos, self) {
+              console.log(self, ";", pos, ";", item, self.indexOf(item) == pos)
+              return self.indexOf(item) == pos;
+            }).slice()*/
+
+          /*  function uniqBy(a, key) {
+              var seen = {};
+              return a.filter(function(item) {
+                var i = JSON.parse(JSON.stringify(item));
+                i.message = i.message.replace("<b><i>", "").replace("</i></b>", "")
+                var k = key(i);
+                console.log(item.message,";", i, ";", seen, ";", k, seen.hasOwnProperty(k))
+                return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+              })
+            }
+
+            let rowDataAux = uniqBy(this.rowData, JSON.stringify)
+            this.rowData = rowDataAux.slice()*/
+           /* this.rowData =  this.rowData.sort(function(a,b){
+
+              let dates = decodeURIComponent(a.time).split("T");
+              let fromDate = dates[0].split("-");
+              let fromHour = dates[1].split(":");
+              let defaultFrom = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
+               dates = decodeURIComponent(b.time).split("T");
+               fromDate = dates[0].split("-");
+               fromHour = dates[1].split(":");
+              let to = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
+              console.log("Sort:", defaultFrom.getTime(), to.getTime() )
+              return defaultFrom.getTime() < to.getTime();
+            }).reduce(function(a, b){ console.log(a, b); if (b != a[0]) a.unshift(b); return a }, [])
+            this.rowData = this.rowData.slice()*/
           }
         }
 
