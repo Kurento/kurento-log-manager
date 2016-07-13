@@ -683,12 +683,12 @@ export class SearchAdvanceComponent {
         pre_tags: ["<b><i>"],
         post_tags: ["</i></b>"],
         fields: {
-          message: {},
-          host: {},
-          threadid: {},
-          loggername: {},
-          loglevel: {},
-          logmessage: {}
+          message: {number_of_fragments: 0},
+          host: {number_of_fragments: 0},
+          threadid: {number_of_fragments: 0},
+          loggername: {number_of_fragments: 0},
+          loglevel: {number_of_fragments: 0},
+          logmessage: {number_of_fragments: 0}
         }
       },
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
@@ -754,11 +754,11 @@ export class SearchAdvanceComponent {
 
             if (logEntry.highlight.logmessage != undefined || logEntry.highlight.message != undefined) {
               if (type == 'cluster' || type == 'kms') {
-                for (let i=0; i<logEntry.highlight.logmessage.length; i++){
+                for (let i = logEntry.highlight.logmessage.length - 1; i >= 0; i--) {
                   message = message.concat(logEntry.highlight.logmessage[i]);
                 }
-              }else {
-                for (let i=0; i<logEntry.highlight.message.length; i++) {
+              } else {
+                for (let i = logEntry.highlight.message.length - 1; i >= 0; i--) {
                   message = message.concat(logEntry.highlight.message[i]);
                 }
               }
