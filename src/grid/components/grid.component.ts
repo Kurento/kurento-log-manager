@@ -40,7 +40,11 @@ const RESULTS_PER_REQUEST = 50;
 export class GridComponent {
 
   ngOnInit() {
-    this.gridHeight = (window.innerHeight - 200) + "px";
+    if (this.onlyTable) {
+      this.gridHeight = (window.innerHeight - 100) + "px";
+    }else {
+      this.gridHeight = (window.innerHeight - 200) + "px";
+    }
   }
 
   constructor(private _elasticSearchService:ElasticSearchService, private http:Http) {
@@ -75,6 +79,7 @@ export class GridComponent {
   @Input() rowData:any[] = [];
   @Input() waiting:boolean = false;
   @Input() showGrid:boolean = false;
+  @Input() onlyTable:boolean = false;
 
   @Output() updateDates:EventEmitter = new EventEmitter();
   @Output() updateRows:EventEmitter = new EventEmitter();
@@ -151,7 +156,11 @@ export class GridComponent {
   }
 
   onResize(event) {
-    this.gridHeight = (event.currentTarget.innerHeight - 200) + "px";
+    if (this.onlyTable) {
+      this.gridHeight = (event.currentTarget.innerHeight - 100) + "px";
+    }else {
+      this.gridHeight = (event.currentTarget.innerHeight - 200) + "px";
+    }
   }
 
   addPattern() {

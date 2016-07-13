@@ -4,7 +4,7 @@
     </div>
     <div *ngIf="showGrid">
       <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-2" *ngIf="!onlyTable">
           <div>
             <div>
               Scroll Lock <input #scroll type="checkbox" [(ngModel)]="scrollLock"

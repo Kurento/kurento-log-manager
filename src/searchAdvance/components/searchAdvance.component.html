@@ -13,7 +13,7 @@
 <div class="main" xmlns="http://www.w3.org/1999/html">
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-12"  *ngIf="!onlyTable">
         <form class="form-inline">
           <div class="col-md-12">
             <div class="form-group form-group-sm ">
@@ -186,7 +186,11 @@
           </div>
         </form>
       </div>
-      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid" (updateDates)="updateDatesForMoreDate($event)" (updateRows)="updateRows($event)"></sd-grid>
+      <div *ngIf="onlyTable">
+        <a href="{{goToLogManager}}" target="_blank" >Go to Log Manager
+        </a>
+      </div>
+      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid" [onlyTable]="onlyTable" (updateDates)="updateDatesForMoreDate($event)" (updateRows)="updateRows($event)"></sd-grid>
       <div *ngIf="showError" class="alert alert-danger">
         {{errorMsg}}
       </div>

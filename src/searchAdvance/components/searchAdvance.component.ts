@@ -37,12 +37,24 @@ export class SearchAdvanceComponent {
   private _scroll_id;
   private noMore = false;
   private dataForAdding;
+  private onlyTable:boolean = false;
+  private goToLogManager:string;
 
   constructor(private _elasticSearchService:ElasticSearchService, @Inject(RouteParams) params:RouteParams) {
     this.showGrid = false;
     this.showError = false;
 
     let autoSearch:boolean = false;
+
+    this.goToLogManager = location.search.replace("onlyTable=true", "onlyTable=false")
+
+    if (params.get('onlyTable') == 'false') {
+      autoSearch = true;
+      this.onlyTable = false;
+    } else if (params.get('onlyTable') == 'true') {
+      autoSearch = true;
+      this.onlyTable = true;
+    }
 
     if (params.get('urlElastic') != null) {
       this.urlElastic = decodeURIComponent(params.get('urlElastic'));
@@ -739,11 +751,29 @@ export class SearchAdvanceComponent {
           else
             this.noMore = false;
 
-
+          var random = Math.floor((Math.random() * 10000) + 1);
           if (position != -1) {
             initPosition = position;
-            position --;
-            console.log("Init:", initPosition)
+            while (this.rowData[initPosition].message.indexOf("End Sub-Search") > -1) {
+              initPosition++;
+              position--;
+            }
+            //position --;
+            // console.log("Init:", initPosition)
+            let urlCode = "";
+            let type = "";
+            let time = "";
+
+            let message = "Init Sub-Search: " + random;
+            let level = "";
+            let thread = "REMOVE";
+            let logger = "";
+            let host = "";
+
+            let logValue = {urlCode, type, time, message, level, thread, logger, host};
+            this.rowData.splice(initPosition, 0, logValue)
+            this.rowData = this.rowData.slice()
+            position++;
           }
 
           for (let logEntry of data.hits.hits) {
@@ -785,16 +815,24 @@ export class SearchAdvanceComponent {
 
             if (append) {
               if (position != -1) {
-                //console.log("this.rowData", this.rowData[position], position)
+                console.log("this.rowData", position, ";", this.rowData[position], message)
                 while (this.rowData[position].message.indexOf("Sub-Search") > -1) {
                   position++;
                 }
                 let positionMessage = this.rowData[position].message.replace("<b><i>", "").replace("</i></b>", "");
-                //console.log("---->", position, ";", logValue.time,";", message)
-                if (this.rowData[position] != undefined && ((this.rowData[position].time === logValue.time && positionMessage === message.replace("<b><i>", "").replace("</i></b>", "")))) {
+                let initPositionMessage = this.rowData[initPosition - 1].message.replace("<b><i>", "").replace("</i></b>", "");
+                //   console.log("---->", position, ";", this.rowData[position], ";", logValue.time,";", message)
+                //  console.log("---->", initPosition - 1, ";", this.rowData[initPosition - 1], ";", logValue.time,";", message)
+                if ((this.rowData[position] != undefined && ((this.rowData[position].time === logValue.time && positionMessage === message.replace("<b><i>", "").replace("</i></b>", ""))))) {
                   position++;
+                  console.log("Continue....", position)
                   continue
                 }
+                if (this.rowData[initPosition - 1] != undefined && ((this.rowData[initPosition - 1].time === logValue.time && initPositionMessage === message.replace("<b><i>", "").replace("</i></b>", "")))) {
+                  console.log("Continue.... before", position)
+                  continue
+                }
+                //  console.log("Insert in ", position, " -> ", logValue)
                 this.rowData.splice(position, 0, logValue)
                 position++;
               } else {
@@ -802,7 +840,7 @@ export class SearchAdvanceComponent {
                   this.rowData.push(logValue);
                 } else {
                   let prevMessage = this.rowData[prevSize - 1].message.replace("<b><i>", "").replace("</i></b>", "");
-                 if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === message.replace("<b><i>", "").replace("</i></b>", "")) {
+                  if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === message.replace("<b><i>", "").replace("</i></b>", "")) {
                     continue
                   }
                   this.rowData.push(logValue);
@@ -814,23 +852,28 @@ export class SearchAdvanceComponent {
           }
           if (position != -1) {
             console.log("Position:", position, initPosition, position - initPosition)
-            if (position - initPosition == 1) {
-              endPosition = position;
+            if (position - initPosition == 0) {
+              endPosition = initPosition + 1;
+            } else if (position - initPosition == 2) {
+              endPosition = position - 1;
             } else {
-              endPosition = position + 1;
+              endPosition = position;
+              while (this.rowData[endPosition].message.indexOf("Sub-Search") > -1) {
+                endPosition++;
+              }
             }
             let urlCode = "";
             let type = "";
             let time = "";
-            let random = Math.floor((Math.random() * 10000) + 1);
+            //let random = Math.floor((Math.random() * 10000) + 1);
             let message = "Init Sub-Search: " + random;
             let level = "";
             let thread = "REMOVE";
             let logger = "";
             let host = "";
 
-            let logValue = {urlCode, type, time, message, level, thread, logger, host};
-            this.rowData.splice(initPosition, 0, logValue)
+            //let logValue = {urlCode, type, time, message, level, thread, logger, host};
+            //this.rowData.splice(initPosition, 0, logValue)
             message = "End Sub-Search: " + random;
             thread = "";
             logValue = {urlCode, type, time, message, level, thread, logger, host};
@@ -839,37 +882,37 @@ export class SearchAdvanceComponent {
           if (data.hits.hits.length > 0) {
             this.rowData = this.rowData.slice();
             /*this.rowData =  this.rowData.filter(function(item, pos, self) {
-              console.log(self, ";", pos, ";", item, self.indexOf(item) == pos)
-              return self.indexOf(item) == pos;
-            }).slice()*/
+             console.log(self, ";", pos, ";", item, self.indexOf(item) == pos)
+             return self.indexOf(item) == pos;
+             }).slice()*/
 
-          /*  function uniqBy(a, key) {
-              var seen = {};
-              return a.filter(function(item) {
-                var i = JSON.parse(JSON.stringify(item));
-                i.message = i.message.replace("<b><i>", "").replace("</i></b>", "")
-                var k = key(i);
-                console.log(item.message,";", i, ";", seen, ";", k, seen.hasOwnProperty(k))
-                return seen.hasOwnProperty(k) ? false : (seen[k] = true);
-              })
-            }
+            /*  function uniqBy(a, key) {
+             var seen = {};
+             return a.filter(function(item) {
+             var i = JSON.parse(JSON.stringify(item));
+             i.message = i.message.replace("<b><i>", "").replace("</i></b>", "")
+             var k = key(i);
+             console.log(item.message,";", i, ";", seen, ";", k, seen.hasOwnProperty(k))
+             return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+             })
+             }
 
-            let rowDataAux = uniqBy(this.rowData, JSON.stringify)
-            this.rowData = rowDataAux.slice()*/
-           /* this.rowData =  this.rowData.sort(function(a,b){
+             let rowDataAux = uniqBy(this.rowData, JSON.stringify)
+             this.rowData = rowDataAux.slice()*/
+            /* this.rowData =  this.rowData.sort(function(a,b){
 
-              let dates = decodeURIComponent(a.time).split("T");
-              let fromDate = dates[0].split("-");
-              let fromHour = dates[1].split(":");
-              let defaultFrom = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
-               dates = decodeURIComponent(b.time).split("T");
-               fromDate = dates[0].split("-");
-               fromHour = dates[1].split(":");
-              let to = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
-              console.log("Sort:", defaultFrom.getTime(), to.getTime() )
-              return defaultFrom.getTime() < to.getTime();
-            }).reduce(function(a, b){ console.log(a, b); if (b != a[0]) a.unshift(b); return a }, [])
-            this.rowData = this.rowData.slice()*/
+             let dates = decodeURIComponent(a.time).split("T");
+             let fromDate = dates[0].split("-");
+             let fromHour = dates[1].split(":");
+             let defaultFrom = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
+             dates = decodeURIComponent(b.time).split("T");
+             fromDate = dates[0].split("-");
+             fromHour = dates[1].split(":");
+             let to = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1], fromHour[2]));
+             console.log("Sort:", defaultFrom.getTime(), to.getTime() )
+             return defaultFrom.getTime() < to.getTime();
+             }).reduce(function(a, b){ console.log(a, b); if (b != a[0]) a.unshift(b); return a }, [])
+             this.rowData = this.rowData.slice()*/
           }
         }
 
