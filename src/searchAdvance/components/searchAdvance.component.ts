@@ -113,6 +113,14 @@ export class SearchAdvanceComponent {
       this.clusterType = true;
     }
 
+    if (params.get('connectivityType') == 'false') {
+      autoSearch = true;
+      this.connectivityType = false;
+    } else if (params.get('connectivityType') == 'true') {
+      autoSearch = true;
+      this.connectivityType = true;
+    }
+
     if (params.get('kmsType') == 'false') {
       autoSearch = true;
       this.kmsType = false;
@@ -195,6 +203,7 @@ export class SearchAdvanceComponent {
 
   testType:boolean = true;
   clusterType:boolean = true;
+  connectivityType:boolean = true;
   kmsType:boolean = true;
 
   debugLevel:boolean = true;
@@ -351,6 +360,11 @@ export class SearchAdvanceComponent {
       this.urlCopied += 'clusterType=' + encodeURIComponent(String(this.clusterType)) + '&';
     }
 
+    if (this.connectivityType != undefined) {
+      this.urlCopied += 'connectivityType=' + encodeURIComponent(String(this.connectivityType)) + '&';
+    }
+
+
     if (this.kmsType != undefined) {
       this.urlCopied += 'kmsType=' + encodeURIComponent(String(this.kmsType)) + '&';
     }
@@ -502,6 +516,10 @@ export class SearchAdvanceComponent {
     if (this.clusterType) {
       types.push('cluster');
       types.push('boot');
+    }
+
+    if (this.connectivityType) {
+      types.push('connectivity');
     }
 
     if (this.kmsType) {
