@@ -96,6 +96,8 @@
           </button>
           <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm"
                  (change)="tailSearch(!tail.checked)"> <label *ngIf="showPauseTail">Pause Tail</label>
+          <button *ngIf="showClearData" (click)="clearData()" class="btn btn-default">Clear Data
+          </button>
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>

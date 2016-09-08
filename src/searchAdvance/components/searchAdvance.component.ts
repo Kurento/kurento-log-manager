@@ -193,8 +193,8 @@ export class SearchAdvanceComponent {
   urlCopied:string;
   showLoadMore:boolean = false;
   showPauseTail:boolean = false;
+  showClearData:boolean = false;
   tailInterval;
-
 
 
   private processCommaSeparatedValue(value:string) {
@@ -347,6 +347,17 @@ export class SearchAdvanceComponent {
     this.useTail = tail;
   }
 
+  clearData() {
+    this.rowData = [];
+    clearInterval(this.tailInterval);
+    this.tailInterval = undefined;
+    this.showGrid = false;
+    this.showLoadMore = false;
+    this.showPauseTail = false;
+    this.showClearData = false;
+    this._scroll_id = "";
+  }
+
 
   search(from:string, to:string, append:boolean = false) {
     this.generateCopyUrl(from, to);
@@ -356,6 +367,7 @@ export class SearchAdvanceComponent {
       this.rowData = [];
     }
     this.showError = false;
+    this.showClearData = true;
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
 
@@ -573,7 +585,7 @@ export class SearchAdvanceComponent {
                 this.rowData.push(logValue);
               } else {
                 if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
-                 // this.rowData = this.rowData.slice();
+                  // this.rowData = this.rowData.slice();
                   continue
                 }
                 this.rowData.push(logValue);
@@ -582,7 +594,7 @@ export class SearchAdvanceComponent {
               this.rowData.push(logValue);
             }
           }
-          if (data.hits.hits.length > 0){
+          if (data.hits.hits.length > 0) {
             this.rowData = this.rowData.slice();
           }
         }
@@ -593,10 +605,9 @@ export class SearchAdvanceComponent {
       err => {
         console.log('Error', err);
         this.errorMsg = err._body;
-        this.showGrid = false;
         this.showError = true;
         this.waiting = false;
-        this.showLoadMore = false;
+        this.clearData();
       }
     )
   }
