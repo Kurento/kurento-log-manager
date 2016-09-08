@@ -542,8 +542,10 @@ export class GridComponent {
   private onModelUpdated() {
     this.calculateRowCount();
     if (!this.scrollLock) {
-      this.gridOptions.api.selectIndex(this.gridOptions.rowData.length - 1);
-      this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+      if (this.gridOptions.rowData.length > 0) {
+        this.gridOptions.api.selectIndex(this.gridOptions.rowData.length - 1);
+        this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+      }
     }
     this.searchByPatterns(this.gridOptions.context.pattern1Color, this.gridOptions.context.pattern2Color, this.gridOptions.context.pattern3Color, this.gridOptions.context.pattern4Color, this.gridOptions.context.pattern5Color)
   }

@@ -18,23 +18,30 @@
             </button>
             <textarea *ngIf="showGrid" rows="2" cols="150" class="js-copytextarea" [(ngModel)]="urlCopied"></textarea>
           </div>
+          <div class="form-group form-group-sm">
+            Max log entries
+            <input type="number" class="form-control input-sm" id="max_results" value="50" [(ngModel)]="maxResults">
+          </div>
           <div class="col-md-14">
             <label>Range</label>
-            <div class="form-group form-group-sm ">
-              From
-              <input #from type="datetime-local" class="form-control input-sm" id="form" placeholder="Yesterday"
-                     novalidate="true"
-                     [value]="getDefaultFromValue()"
-                     step=1>
+            <div>
+              <input type="radio" name="typeSearch" value="false" (click)="setUseTail(false)" checked="checked">By Date
+              <div class="form-group form-group-sm ">
+                From
+                <input #from type="datetime-local" class="form-control input-sm" id="form" placeholder="Yesterday"
+                       novalidate="true"
+                       [value]="getDefaultFromValue()"
+                       step=1>
+              </div>
+              <div class="form-group form-group-sm">
+                To
+                <input #to type="datetime-local" class="form-control input-sm" id="to" placeholder="Now"
+                       novalidate="true"
+                       [value]="getDefaultToValue()" step=1>
+              </div>
             </div>
-            <div class="form-group form-group-sm">
-              To
-              <input #to type="datetime-local" class="form-control input-sm" id="to" placeholder="Now" novalidate="true"
-                     [value]="getDefaultToValue()" step=1>
-            </div>
-            <div class="form-group form-group-sm">
-              Max log entries
-              <input type="number" class="form-control input-sm" id="max_results" value="50" [(ngModel)]="maxResults">
+            <div>
+              <input type="radio" name="typeSearch" value="true" (click)="setUseTail(true)">By Tail
             </div>
           </div>
 
@@ -83,12 +90,12 @@
             <input #error type="checkbox" class="form-control input-sm" [(ngModel)]="errorLevel"
                    (change)="errorLevel = error.checked" checked> ERROR
           </div>
-          <button (click)="search(from.value, to.value, false)" class="btn btn-default">Search
+          <button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
           </button>
           <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load More
           </button>
-          <input *ngIf="showLoadMore" #tail type="checkbox" class="form-control input-sm" [(ngModel)]="useTail"
-                 (change)="tailSearch(tail.checked)"> <label *ngIf="showLoadMore">TAIL</label>
+          <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm"
+                 (change)="tailSearch(!tail.checked)"> <label *ngIf="showPauseTail">Pause Tail</label>
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>

@@ -192,7 +192,9 @@ export class SearchAdvanceComponent {
   maxResults:number = 50;
   urlCopied:string;
   showLoadMore:boolean = false;
+  showPauseTail:boolean = false;
   tailInterval;
+
 
 
   private processCommaSeparatedValue(value:string) {
@@ -337,7 +339,12 @@ export class SearchAdvanceComponent {
       }, 1000);
     } else {
       clearInterval(this.tailInterval);
+      this.tailInterval = undefined;
     }
+  }
+
+  setUseTail(tail:boolean) {
+    this.useTail = tail;
   }
 
 
@@ -398,10 +405,21 @@ export class SearchAdvanceComponent {
     if (!this.useTail) {
       queryto = to;
       sort = 'asc';
+      this.showLoadMore = true;
+      this.showPauseTail = false;
+      if (this.tailInterval) {
+        clearInterval(this.tailInterval);
+      }
+      this.tailInterval = undefined;
     } else {
       queryto = 'now';
-      queryfrom = dateToInputLiteral(new Date(new Date().valueOf()));
+      queryfrom = dateToInputLiteral(new Date(new Date().valueOf() - (2 * 60 * 61 * 1000)));
       sort = 'asc';
+      this.showLoadMore = false;
+      this.showPauseTail = true;
+      if (this.tailInterval == undefined) {
+        this.tailSearch(true);
+      }
     }
 
     let queryes:any = {
@@ -571,7 +589,6 @@ export class SearchAdvanceComponent {
 
         this.showGrid = true;
         this.waiting = false;
-        this.showLoadMore = true;
       },
       err => {
         console.log('Error', err);
