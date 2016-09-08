@@ -6,7 +6,6 @@ import 'rxjs/Rx';
 export class ElasticSearchService {
 
   public rowData:any[] = [];
-  private headers;
 
   constructor(public http:Http) {
     console.log('Task Service created.');
@@ -34,9 +33,6 @@ export class ElasticSearchService {
         this.rowData = [];
 
         if (data.hits !== undefined && data.hits.hits.length === 0) {
-          if (this.log === "") {
-            this.log = "No results found";
-          }
           console.log("Returned response without results. Aborting");
           return;
         }

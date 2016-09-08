@@ -110,7 +110,7 @@ export class SearchComponent {
 
     let query = "";
 
-    let types = [];
+    let types:Array<string> = [];
 
     if (this.clusterType) {
       types.push('cluster');
@@ -125,7 +125,7 @@ export class SearchComponent {
       types.push('test');
     }
 
-    let logLevels = [];
+    let logLevels:Array<string> = [];
 
     if (this.debugLevel) {
       logLevels.push('debug');

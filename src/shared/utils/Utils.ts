@@ -26,9 +26,9 @@ export function dateToInputLiteral(date: Date) {
 
 export var ES_URL:String = 'http://jenkins:jenkins130@elasticsearch.kurento.org:9200/';
 export var INDEX:String = "<kurento-*>";
-export var RESULTS_PER_REQUEST:Integer = 50;
+export var RESULTS_PER_REQUEST:number = 50;
 
-function pad(n, width, z?) {
+function pad(n:any, width:number, z?:string) {
   z = z || '0';
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;

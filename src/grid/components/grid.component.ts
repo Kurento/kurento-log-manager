@@ -25,8 +25,6 @@ import 'ag-grid-enterprise/main';
 import {ElasticSearchService} from './../../shared/services/elasticSearch.service';
 
 
-import {NameListService} from '../../shared/services/name-list.service';
-
 const ES_URL = 'http://jenkins:jenkins130@elasticsearch.kurento.org:9200/';
 const INDEX = "<kurento-*>";
 const RESULTS_PER_REQUEST = 50;
@@ -71,18 +69,10 @@ export class GridComponent {
   @Input() waiting:boolean = false;
   @Input() showGrid:boolean = false;
 
-  private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
-  private defaultTo = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
-  private guiquery:string;
-
   // Grid
-  private AgGridNg2:gridNg2;
   private gridOptions:GridOptions;
-  // private showGrid:boolean;
-  //private rowData:any[] = [];
   private columnDefs:any[];
   private rowCount:string;
-  // private waiting:boolean = false;
 
   loggers:string;
   hosts:string;
@@ -111,8 +101,7 @@ export class GridComponent {
 
   private posActual:number = -1;
 
-  private getNextPosition(element, array) {
-    console.log("element:", element, "Array:", array)
+  private getNextPosition(element:number, array:Array<number>) {
     let i:number;
     for (i = 0; i < array.length; i++) {
       if (element < array[i]) {
@@ -122,8 +111,7 @@ export class GridComponent {
     return -1;
   }
 
-  private getPrevPosition(element, array) {
-    console.log("element:", element, "Array:", array)
+  private getPrevPosition(element:number, array:Array<number>) {
     let i:number;
     for (i = array.length; i >= 0; i--) {
       if (element > array[i]) {
@@ -133,7 +121,7 @@ export class GridComponent {
     return -1;
   }
 
-  private sorted(a, b) {
+  private sorted(a:number, b:number) {
     return a - b
   }
 
@@ -152,7 +140,7 @@ export class GridComponent {
   }
 
 
-  removePattern(pattern) {
+  removePattern(pattern:number) {
     if (pattern == 1) {
       this.pattern1 = '';
       this.gridOptions.context.pattern1 = 'NO DATA';

@@ -66,7 +66,7 @@ export class SearchAdvanceComponent {
     }
 
     if (params.get('maxResults') != null) {
-      this.maxResults = decodeURIComponent(params.get('maxResults'));
+      this.maxResults = parseInt(decodeURIComponent(params.get('maxResults')));
       autoSearch = true;
     }
 
@@ -205,7 +205,7 @@ export class SearchAdvanceComponent {
     document.execCommand("copy");
   }
 
-  private generateCopyUrl(from, to) {
+  private generateCopyUrl(from:string, to:string) {
 
     this.urlCopied = document.URL + '?';
     if (this.urlElastic != undefined) {
@@ -229,37 +229,37 @@ export class SearchAdvanceComponent {
     }
 
     if (this.maxResults != undefined) {
-      this.urlCopied += 'maxResults=' + encodeURIComponent(this.maxResults) + '&';
+      this.urlCopied += 'maxResults=' + encodeURIComponent(String(this.maxResults)) + '&';
     }
 
 
     if (this.testType != undefined) {
-      this.urlCopied += 'testType=' + encodeURIComponent(this.testType) + '&';
+      this.urlCopied += 'testType=' + encodeURIComponent(String(this.testType)) + '&';
     }
 
     if (this.clusterType != undefined) {
-      this.urlCopied += 'clusterType=' + encodeURIComponent(this.clusterType) + '&';
+      this.urlCopied += 'clusterType=' + encodeURIComponent(String(this.clusterType)) + '&';
     }
 
     if (this.kmsType != undefined) {
-      this.urlCopied += 'kmsType=' + encodeURIComponent(this.kmsType) + '&';
+      this.urlCopied += 'kmsType=' + encodeURIComponent(String(this.kmsType)) + '&';
     }
 
 
     if (this.debugLevel != undefined) {
-      this.urlCopied += 'debugLevel=' + encodeURIComponent(this.debugLevel) + '&';
+      this.urlCopied += 'debugLevel=' + encodeURIComponent(String(this.debugLevel)) + '&';
     }
 
     if (this.infoLevel != undefined) {
-      this.urlCopied += 'infoLevel=' + encodeURIComponent(this.infoLevel) + '&';
+      this.urlCopied += 'infoLevel=' + encodeURIComponent(String(this.infoLevel)) + '&';
     }
 
     if (this.warnLevel != undefined) {
-      this.urlCopied += 'warnLevel=' + encodeURIComponent(this.warnLevel) + '&';
+      this.urlCopied += 'warnLevel=' + encodeURIComponent(String(this.warnLevel)) + '&';
     }
 
     if (this.errorLevel != undefined) {
-      this.urlCopied += 'errorLevel=' + encodeURIComponent(this.errorLevel) + '&';
+      this.urlCopied += 'errorLevel=' + encodeURIComponent(String(this.errorLevel)) + '&';
     }
 
     if (from != undefined) {
@@ -287,7 +287,7 @@ export class SearchAdvanceComponent {
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
 
-    let types = [];
+    let types:Array<string> = [];
 
     if (this.testType) {
       types.push('test');
@@ -302,7 +302,7 @@ export class SearchAdvanceComponent {
       types.push('kms');
     }
 
-    let logLevels = [];
+    let logLevels:Array<string> = [];
 
     if (this.debugLevel) {
       logLevels.push('debug');
