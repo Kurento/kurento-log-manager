@@ -32,8 +32,8 @@ import 'rxjs/Rx';
 export class ElasticSearchService {
 
   public rowData:any[] = [];
-  tail:boolean = true;
   _scroll_id:string;
+  noMore:boolean = false;
 
   constructor(public http:Http) {
     console.log('Task Service created.');
@@ -41,20 +41,20 @@ export class ElasticSearchService {
   }
 
   internalSearch(url:string, query:any, maxResults:number, append:boolean = false) {
+    console.log("URL:", url, "Query:", query)
 
     if (!append) {
       this.rowData = [];
     }
 
     if (append) {
-      if (this.rowData.length > 0) {
-        // console.log("Must:", query.query.filtered.filter.bool.must[0].range['@timestamp'].gte)
-        console.log("Last Time:", this.rowData[this.rowData.length - 1].time)
-        console.log("Scroll_id:", this._scroll_id)
-        url = "http://localhost:9200/_search/scroll"
-        query = {scroll: '1m', scroll_id: this._scroll_id}
-        console.log("Url tail:", url)
-        //query.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
+      if (!this.noMore) {
+        if (this.rowData.length > 0) {
+          url = "http://localhost:9200/_search/scroll"
+          query = {scroll: '1m', scroll_id: this._scroll_id}
+          }
+      } else {
+          query.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
       }
     }
     let requestoptions = new RequestOptions({
@@ -81,8 +81,12 @@ export class ElasticSearchService {
         }
 
         if (data.hits) {
-
+          console.log("Data hits size:", data.hits.hits.length)
           let prevSize = this.rowData.length;
+          if (data.hits.hits.length === 0)
+            this.noMore = true;
+          else
+            this.noMore = false;
 
           for (let logEntry of data.hits.hits) {
             let type = logEntry._type;
@@ -99,7 +103,7 @@ export class ElasticSearchService {
               if (prevSize == 0) {
                 this.rowData.push(logValue);
               } else {
-                if (this.rowData[prevSize - 1].time === logValue.time) {
+                if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
                   this.rowData = this.rowData.slice();
                   return this.rowData;
                 }

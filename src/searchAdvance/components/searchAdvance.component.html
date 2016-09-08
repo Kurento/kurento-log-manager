@@ -81,19 +81,14 @@
             <input #warn type="checkbox" class="form-control input-sm" [(ngModel)]="warnLevel"
                    (change)="warnLevel = warn.checked" checked> WARN
             <input #error type="checkbox" class="form-control input-sm" [(ngModel)]="errorLevel"
-                   (change)="errorLevel = error.checked" checked>
-            ERROR
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              Tail<input #tailCheckbox type="checkbox" class="form-control input-sm"
-                         (change)="tailSearch(tailCheckbox.checked)">
-            </div>
+                   (change)="errorLevel = error.checked" checked> ERROR
           </div>
           <button (click)="search(from.value, to.value, false)" class="btn btn-default">Search
           </button>
           <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load More
           </button>
+          <input *ngIf="showLoadMore" #tail type="checkbox" class="form-control input-sm" [(ngModel)]="useTail"
+                 (change)="tailSearch(tail.checked)"> <label *ngIf="showLoadMore">TAIL</label>
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>

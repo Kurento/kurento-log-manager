@@ -177,6 +177,8 @@ export class SearchAdvanceComponent {
   warnLevel:boolean = true;
   errorLevel:boolean = true;
 
+  useTail:boolean = false;
+
   urlElastic:string = 'http://localhost:9200/';
   clusterName:string;
   indexName:string;
@@ -187,6 +189,7 @@ export class SearchAdvanceComponent {
   maxResults:number = 50;
   urlCopied:string;
   showLoadMore:boolean = false;
+  tailInterval;
 
 
   private processCommaSeparatedValue(value:string) {
@@ -322,12 +325,27 @@ export class SearchAdvanceComponent {
     return timeDifferenceInDays;
   }
 
+  tailSearch(tail: boolean) {
+    this.useTail = tail;
+    if (tail) {
+      this.tailInterval = setInterval(() => {
+        // In this case, to will be 'now'
+        this.search(dateToInputLiteral(this.defaultFrom), undefined, true);
+      }, 5000);
+    } else {
+      clearInterval(this.tailInterval);
+    }
+  }
+
+
   search(from:string, to:string, append:boolean = false) {
     this.generateCopyUrl(from, to);
-    this.showGrid = false;
-    this.showError = false;
-    this.waiting = true;
+    if (!append) {
+      this.showGrid = false;
+      this.waiting = true;
+    }
     this.rowData = [];
+    this.showError = false;
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
 
@@ -374,7 +392,11 @@ export class SearchAdvanceComponent {
     let sort:'asc' | 'desc';
 
     queryfrom = from;
-    queryto = to;
+    if (!this.useTail) {
+      queryto = to;
+    }else {
+      queryto = 'now';
+    }
     sort = 'asc';
 
     let queryes:any = {
@@ -476,6 +498,7 @@ export class SearchAdvanceComponent {
       size: this.maxResults,
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
+
 
     this._elasticSearchService.internalSearch(url, esquery, this.maxResults, append).subscribe(
       data => {
