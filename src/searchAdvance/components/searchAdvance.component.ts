@@ -18,7 +18,7 @@
 import {Component, Inject} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
-import {dateToInputLiteral, ES_URL, INDEX, RESULTS_PER_REQUEST} from './../../shared/utils/Utils';
+import {dateToInputLiteral, ES_URL, INDEX, RESULTS_PER_REQUEST, getGerritUrl} from './../../shared/utils/Utils';
 import {ElasticSearchService} from './../../shared/services/elasticSearch.service';
 import {GridComponent} from './../../grid/components/grid.component'
 import {RouteParams} from 'angular2/router';
@@ -574,6 +574,7 @@ export class SearchAdvanceComponent {
             this.noMore = false;
 
           for (let logEntry of data.hits.hits) {
+            let urlCode = getGerritUrl(logEntry._source.loggername, 1)
             let type = logEntry._type;
             let time = logEntry._source['@timestamp'];
             let message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
@@ -582,7 +583,7 @@ export class SearchAdvanceComponent {
             let logger = logEntry._source.loggername;
             let host = logEntry._source.host;
 
-            let logValue = {type, time, message, level, thread, logger, host};
+            let logValue = {urlCode, type, time, message, level, thread, logger, host};
 
             if (append) {
               if (prevSize == 0) {

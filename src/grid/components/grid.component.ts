@@ -18,7 +18,7 @@
 import {Component, Input} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
-import {dateToInputLiteral} from './../../shared/utils/Utils';
+import {getGerritUrl} from './../../shared/utils/Utils';
 import {AgGridNg2} from 'ag-grid-ng2/main';
 import {GridOptions} from 'ag-grid/main';
 import 'ag-grid-enterprise/main';
@@ -524,8 +524,10 @@ export class GridComponent {
 
     this.columnDefs = [
       {
-        headerName: '#', width: 30, checkboxSelection: false, suppressSorting: true,
-        suppressMenu: true, pinned: true, cellStyle: cellStyleCenter
+        headerName: 'Code', width: 45, checkboxSelection: false, suppressSorting: true, field: "urlCode",
+        suppressMenu: true, pinned: true, cellStyle: cellStyleCenter, cellRenderer: function (params) {
+        return (params.data.urlCode == '' ? '' : '<a href="' + params.data.urlCode + '" target="_blank">Go</a>');
+      }
       },
       {
         headerName: 'Time', width: 200, checkboxSelection: false, suppressSorting: true, field: "time",
