@@ -95,6 +95,9 @@
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
+      <div *ngIf="showError" class="alert alert-danger">
+        {{errorMsg}}
+      </div>
     </div>
   </div>
 </div>

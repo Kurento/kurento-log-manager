@@ -36,6 +36,7 @@ import 'ag-grid-enterprise/main';
 export class SearchAdvanceComponent {
   constructor(private _elasticSearchService:ElasticSearchService, @Inject(RouteParams) params:RouteParams) {
     this.showGrid = false;
+    this.showError = false;
 
     let autoSearch:boolean = false;
 
@@ -162,7 +163,10 @@ export class SearchAdvanceComponent {
   // show/hide the grid and spinner
   private rowData:any[] = [];
   private showGrid:boolean;
+  private showError:boolean;
   private waiting:boolean = false;
+
+  errorMsg: string = "";
 
   testType:boolean = true;
   clusterType:boolean = true;
@@ -320,6 +324,7 @@ export class SearchAdvanceComponent {
   search(from:string, to:string, append:boolean = false) {
     this.generateCopyUrl(from, to);
     this.showGrid = false;
+    this.showError = false;
     this.waiting = true;
     this.rowData = [];
     // All variables (boolean) have a default value as true
@@ -478,7 +483,13 @@ export class SearchAdvanceComponent {
         this.showGrid = true;
         this.waiting = false;
       },
-      err => console.log('Error', err)
+      err => {
+        console.log('Error', err);
+        this.errorMsg = err._body;
+        this.showGrid = false;
+        this.showError = true;
+        this.waiting = false;
+      }
     )
   }
 
