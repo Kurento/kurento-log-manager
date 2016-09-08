@@ -24,17 +24,14 @@
           <div [style.display]="pattern1Show ?'':'none'" class="form-group form-group-sm patternDiv">
             <input #messageCmp class="form-control input-sm" id="pattern1" value="" [(ngModel)]="pattern1"
                    placeholder="Search on message">
-            <button
-              (click)="removePattern(1)" class="btn btn-default">X
-            </button>
+            <button (click)="removePattern(1)" type="button" class="close buttonClose" >&times;</button>
             <div class="col-md-12 buttonPatternDiv">
               <input #pattern1Color type="color" name="favcolor" value="#ff0000" id="pattern1Color">
-
               <button
-                (click)="prev(1)" class="btn btn-default">Prev
+                (click)="prev(1)" class="btn btn-default btn-sm">Prev
               </button>
               <button
-                (click)="next(1)" class="btn btn-default">Next
+                (click)="next(1)" class="btn btn-default btn-sm">Next
               </button>
 
             </div>
@@ -42,17 +39,16 @@
           <div [style.display]="pattern2Show ?'':'none'" class="form-group form-group-sm patternDiv">
             <input #messageCmp class="form-control input-sm" id="pattern2" value="" [(ngModel)]="pattern2"
                    placeholder="Search on message">
-            <button
-              (click)="removePattern(2)" class="btn btn-default">X
-            </button>
+            <button (click)="removePattern(2)" type="button" class="close buttonClose">&times;</button>
+
             <div class="col-md-12 buttonPatternDiv">
 
               <input #pattern2Color type="color" name="favcolor" value="#00ff00" id="pattern2Color">
               <button
-                (click)="prev(2)" class="btn btn-default">Prev
+                (click)="prev(2)" class="btn btn-default  btn-sm">Prev
               </button>
               <button
-                (click)="next(2)" class="btn btn-default">Next
+                (click)="next(2)" class="btn btn-default  btn-sm">Next
               </button>
 
             </div>
@@ -60,16 +56,15 @@
           <div [style.display]="pattern3Show ?'':'none'" class="form-group form-group-sm patternDiv">
             <input #messageCmp class="form-control input-sm" id="pattern3" value="" [(ngModel)]="pattern3"
                    placeholder="Search on message">
-            <button
-              (click)="removePattern(3)" class="btn btn-default">X
-            </button>
+            <button (click)="removePattern(3)" type="button" class="close buttonClose">&times;</button>
+
             <div class="col-md-12 buttonPatternDiv">
               <input #pattern3Color type="color" name="favcolor" value="#0000ff" id="pattern3Color">
               <button
-                (click)="prev(3)" class="btn btn-default">Prev
+                (click)="prev(3)" class="btn btn-default btn-sm">Prev
               </button>
               <button
-                (click)="next(3)" class="btn btn-default">Next
+                (click)="next(3)" class="btn btn-default btn-sm">Next
               </button>
 
             </div>
@@ -77,32 +72,29 @@
           <div [style.display]="pattern4Show ?'':'none'" class="form-group form-group-sm patternDiv">
             <input #messageCmp class="form-control input-sm" id="pattern4" value="" [(ngModel)]="pattern4"
                    placeholder="Search on message">
-            <button
-              (click)="removePattern(4)" class="btn btn-default">X
-            </button>
+            <button (click)="removePattern(4)" type="button" class="close buttonClose">&times;</button>
+
             <div class="col-md-12 buttonPatternDiv">
               <input #pattern4Color type="color" name="favcolor" value="#ff00ff" id="pattern4Color">
               <button
-                (click)="prev(4)" class="btn btn-default">Prev
+                (click)="prev(4)" class="btn btn-default btn-sm">Prev
               </button>
               <button
-                (click)="next(4)" class="btn btn-default">Next
+                (click)="next(4)" class="btn btn-default btn-sm">Next
               </button>
             </div>
           </div>
           <div [style.display]="pattern5Show ?'':'none'" class="form-group form-group-sm patternDiv">
             <input #messageCmp class="form-control input-sm" id="pattern5" value="" [(ngModel)]="pattern5"
                    placeholder="Search on message">
-            <button
-              (click)="removePattern(5)" class="btn btn-default">X
-            </button>
+            <button (click)="removePattern(5)" type="button" class="close buttonClose">&times;</button>
             <div class="col-md-12 buttonPatternDiv">
               <input #pattern5Color type="color" name="favcolor" value="#ffff00" id="pattern5Color">
               <button
-                (click)="prev(5)" class="btn btn-default">Prev
+                (click)="prev(5)" class="btn btn-default btn-sm">Prev
               </button>
               <button
-                (click)="next(5)" class="btn btn-default">Next
+                (click)="next(5)" class="btn btn-default btn-sm">Next
               </button>
 
             </div>
