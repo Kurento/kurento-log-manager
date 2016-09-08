@@ -21,6 +21,7 @@
               <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
                      value="" (change)="updateUrlElastic($event)">
               <label>Cluster Name</label>
+              <a href="#" (click)="updateUrlElastic()"><span class="glyphicon glyphicon-refresh"></span></a>
               <select [(ngModel)]="clusterSelected" (change)="updateclusterSelected($event)">
                 <option *ngFor="#c of indices" [value]="c.cluster.name">{{c.cluster.name}}</option>
               </select>

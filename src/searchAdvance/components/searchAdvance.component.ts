@@ -380,7 +380,13 @@ export class SearchAdvanceComponent {
   }
 
   updateUrlElastic(event:Event):void {
-    const value:string = (<HTMLSelectElement>event.srcElement).value;
+    var value:string;
+    if (event == undefined) {
+      value = this.urlElastic;
+    } else {
+      value = (<HTMLSelectElement>event.srcElement).value;
+    }
+    this.clusterName = "";
     this.updateIndices(value + "_mapping");
   }
 
