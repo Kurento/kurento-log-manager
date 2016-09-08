@@ -17,20 +17,17 @@
 
 import {Component} from 'angular2/core';
 import {ROUTER_DIRECTIVES, RouteConfig} from 'angular2/router';
-import {NavbarComponent} from './navbar.component';
 import {ToolbarComponent} from './toolbar.component';
 import {AboutComponent} from '../../about/components/about.component';
-import {SearchComponent} from '../../search/components/search.component';
 import {SearchAdvanceComponent} from '../../searchAdvance/components/searchAdvance.component';
 
 @Component({
   selector: 'sd-app',
   templateUrl: './app/components/app.component.html',
-  directives: [ROUTER_DIRECTIVES, NavbarComponent, ToolbarComponent, SearchAdvanceComponent]
+  directives: [ROUTER_DIRECTIVES, ToolbarComponent, SearchAdvanceComponent]
 })
 @RouteConfig([
   {path: '/', name: 'SearchAdvance', component: SearchAdvanceComponent},
- // {path: '/advance', name: 'SearchAdvance', component: SearchAdvanceComponent},
   {path: '/about', name: 'About', component: AboutComponent}
 ])
 export class AppComponent {

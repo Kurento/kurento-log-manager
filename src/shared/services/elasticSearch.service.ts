@@ -18,13 +18,10 @@
 import {
   Http,
   Response,
-  HTTP_PROVIDERS,
-  Headers,
   RequestOptions,
   RequestMethod,
-  Request,
-  URLSearchParams
-} from 'angular2/http'
+  Request
+} from 'angular2/http';
 import {Injectable} from 'angular2/core';
 import 'rxjs/Rx';
 
@@ -41,35 +38,34 @@ export class ElasticSearchService {
   }
 
   internalSearch(url:string, query:any, maxResults:number, append:boolean = false) {
-    console.log("URL:", url, "Query:", query)
+    console.log('URL:', url, 'Query:', query);
 
-    let requestoptions = new RequestOptions({
+    let requestOptions = new RequestOptions({
       method: RequestMethod.Post,
       url,
       body: JSON.stringify(query)
-    })
+    });
 
-    return this.http.request(new Request(requestoptions))
+    return this.http.request(new Request(requestOptions))
       .map((res:Response) => {
-        let data = res.json()
-        return data;
+        return res.json();
       }, (err:Response) => {
-        console.error("Error:", err);
+        console.error('Error:', err);
       });
   }
 
   getIndices(url:string) {
 
-    let requestoptions = new RequestOptions({
+    let requestOptions = new RequestOptions({
       method: RequestMethod.Get,
       url
-    })
+    });
 
-    return this.http.request(new Request(requestoptions))
+    return this.http.request(new Request(requestOptions))
       .map((res:Response) => {
         return res.json();
       }, (err:Response) => {
-        console.error("Error:", err);
+        console.error('Error:', err);
       });
   }
 }

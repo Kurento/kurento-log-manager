@@ -18,10 +18,6 @@
                      placeholder="Type text to filter..."/>
             </div>
           </div>
-          <!-- <div class="toolbar">
-             Show Tool Panel
-             <input type="checkbox" style="margin-top:2px" (change)="showToolPanel=$event.target.checked"/>
-           </div> -->
           Search in the results:
           <button *ngIf="(!pattern1Show || !pattern2Show || !pattern3Show || !pattern4Show || !pattern5Show)"
                   (click)="addPattern()" class="btn btn-default">Add pattern

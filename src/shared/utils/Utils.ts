@@ -25,7 +25,7 @@ export function dateToInputLiteral(date: Date) {
 }
 
 export var ES_URL:String = 'http://jenkins:jenkins130@elasticsearch.kurento.org:9200/';
-export var INDEX:String = "<kurento-*>";
+export var INDEX:String = '<kurento-*>';
 export var RESULTS_PER_REQUEST:number = 50;
 
 function pad(n:any, width:number, z?:string) {
@@ -84,13 +84,14 @@ var projectForLogger = {
     project: 'kurento-cluster',
     subProject: 'kmscluster-controller/src/main/java/'
   }
-}
+};
 
 export function getGerritUrl(logger:string, line:number) {
   for (var key in projectForLogger) {
     let value = projectForLogger[key];
-    if (logger.indexOf(key) != -1) {
-      return "https://code.kurento.org/gitweb?p=" + value.project + ".git;a=blob;f=" + value.subProject + logger.replace(/\./g, '/') + ".java;hb=HEAD#l" + line;
+    if (logger.indexOf(key) !== -1) {
+      return 'https://code.kurento.org/gitweb?p=' + value.project + '.git;a=blob;f=' + value.subProject +
+        logger.replace(/\./g, '/') + '.java;hb=HEAD#l' + line;
     }
   }
   return '';
