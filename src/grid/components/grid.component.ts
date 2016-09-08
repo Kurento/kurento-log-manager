@@ -40,7 +40,7 @@ const RESULTS_PER_REQUEST = 50;
 export class GridComponent {
 
   ngOnInit() {
-    this.gridHeight = window.innerHeight + "px";
+    this.gridHeight = (window.innerHeight - 200) + "px";
   }
 
   constructor(private _elasticSearchService:ElasticSearchService, private http:Http) {
@@ -148,7 +148,7 @@ export class GridComponent {
   }
 
   onResize(event) {
-    this.gridHeight = event.currentTarget.innerHeight + "px";
+    this.gridHeight = (event.currentTarget.innerHeight - 200) + "px";
   }
 
   addPattern() {

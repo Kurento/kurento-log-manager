@@ -7,6 +7,9 @@
       .toggleClass('glyphicon-chevron-up glyphicon-chevron-down');
   }
 </script>
+<textarea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" class="js-copytextarea"
+          style="margin-left:-1000px; float: left;"
+          [(ngModel)]="urlCopied"></textarea>
 <div class="main" xmlns="http://www.w3.org/1999/html">
   <div class="container-fluid">
     <div class="row">
@@ -183,6 +186,4 @@
       </div>
     </div>
   </div>
-  <textarea *ngIf="showGrid && !showPauseTail" rows="2" cols="150" class="js-copytextarea"
-            [(ngModel)]="urlCopied"></textarea>
 </div>
