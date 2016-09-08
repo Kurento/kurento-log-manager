@@ -8,7 +8,7 @@
           <div>
             <div>
               Scroll Lock <input #scroll type="checkbox" [(ngModel)]="scrollLock"
-                     (change)="scrollLock = scroll.checked" checked>
+                                 (change)="scrollLock = scroll.checked" checked>
             </div>
             <div class="form-group">
               Filter results:
@@ -125,7 +125,16 @@
             </div>
           </form>
         </div>
-        <div class="col-md-10" >
+        <div *ngIf="modalMessage != ''" class="panel panel-primary popupModalWindow">
+          <div class="panel-heading">
+            <button (click)="closeModal()" type="button" class="close buttonCloseModal">&times;</button>
+            <h4 class="panel-title">Row</h4>
+          </div>
+          <div class="panel-body">
+            <pre>{{modalMessage}}</pre>
+          </div>
+        </div>
+        <div class="col-md-10">
           <ag-grid-ng2 style="width: 100%; height: 600px;" class="ag-fresh resizable" id="gridNg2"
 
                        [gridOptions]="gridOptions"

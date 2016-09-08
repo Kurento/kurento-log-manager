@@ -63,6 +63,7 @@ export class GridComponent {
       }
     };
 
+    this.modalMessage = '';
     this.createColumnDefs();
   }
 
@@ -74,6 +75,8 @@ export class GridComponent {
   private gridOptions:GridOptions;
   private columnDefs:any[];
   private rowCount:string;
+
+  private modalMessage:string = '';
 
   loggers:string;
   hosts:string;
@@ -557,6 +560,10 @@ export class GridComponent {
     ];
   }
 
+  private closeModal() {
+    this.modalMessage = '';
+  }
+
   private calculateRowCount() {
     if (this.gridOptions.api && this.rowData) {
       var model = this.gridOptions.api.getModel();
@@ -590,7 +597,7 @@ export class GridComponent {
   }
 
   private onCellDoubleClicked($event) {
-    console.log('onCellDoubleClicked: ', $event.rowIndex, ' ', $event.colDef.field);
+    this.modalMessage = JSON.stringify($event.data, null, 4);
   }
 
   private onCellContextMenu($event) {
