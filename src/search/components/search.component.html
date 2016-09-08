@@ -27,10 +27,17 @@
         <button (click)="search(from.value, to.value, simpleSearch.value)" class="btn btn-default">Search</button>
       </form>
     </div>
-    <div>
+    <div class="gridDiv">
       <div *ngIf="waiting" class="loader">
       </div>
       <div *ngIf="showGrid">
+        <div>
+          <div class="form-group">
+            <label>Log entries {{rowCount}} </label>
+            <input (keyup)="onQuickFilterChanged($event)" class="form-control" type="text" id="quickFilterInput"
+                   placeholder="Type text to filter..."/>
+          </div>
+        </div>
         <ag-grid-ng2 style="width: 1300px; height: 300px;" class="ag-fresh resizable"
 
                      [gridOptions]="gridOptions"
