@@ -14,7 +14,7 @@
         Show Tool Panel
         <input type="checkbox" style="margin-top:2px" (change)="showToolPanel=$event.target.checked"/>
       </div>
-      <ag-grid-ng2 style="width: 100%; height: 100%;" class="ag-fresh resizable"
+      <ag-grid-ng2 style="width: 100%; height: 1000px;" class="ag-fresh resizable" id="gridNg2"
 
                    [gridOptions]="gridOptions"
                    [columnDefs]="columnDefs"
@@ -28,8 +28,6 @@
                    suppressRowClickSelection
                    toolPanelSuppressGroups
                    toolPanelSuppressValues
-                   debug
-                   rowHeight="22"
                    rowSelection="multiple"
 
                    (modelUpdated)="onModelUpdated()"

@@ -1,3 +1,20 @@
+/*
+ * (C) Copyright 2016 Kurento (http://kurento.org/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import {Component, Input} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
@@ -30,20 +47,21 @@ export class GridComponent {
   }
 
   @Input() rowData:any[] = [];
-  @Input() waiting: boolean = false;
-  @Input() showGrid: boolean = false;
+  @Input() waiting:boolean = false;
+  @Input() showGrid:boolean = false;
 
   private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
   private defaultTo = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
   private guiquery:string;
 
   // Grid
+  private AgGridNg2:gridNg2;
   private gridOptions:GridOptions;
- // private showGrid:boolean;
+  // private showGrid:boolean;
   //private rowData:any[] = [];
   private columnDefs:any[];
   private rowCount:string;
- // private waiting:boolean = false;
+  // private waiting:boolean = false;
 
   loggers:string;
   hosts:string;
@@ -52,7 +70,6 @@ export class GridComponent {
 
 
   private createColumnDefs() {
-
     let rowColor = function (params) {
       if (params.data.level === 'ERROR') {
         return 'log-level-error';
@@ -61,6 +78,10 @@ export class GridComponent {
       } else {
         return '';
       }
+    }
+
+    let cellRenderer = function (params) {
+      return '<span title="the tooltip" style=" text-overflow: clip; overflow: visible; white-space: normal">' + params.data.message + '</span>';
     }
 
     this.columnDefs = [
@@ -77,7 +98,7 @@ export class GridComponent {
         suppressMenu: true, pinned: false, cellClass: rowColor
       },
       {
-        headerName: 'Type', width: 60, checkboxSelection: false, suppressSorting: true, field: "type",
+        headerName: 'Type', width: 50, checkboxSelection: false, suppressSorting: true, field: "type",
         suppressMenu: true, pinned: false, cellClass: rowColor
       },
       {
@@ -86,7 +107,9 @@ export class GridComponent {
       },
       {
         headerName: 'Message', width: 600, checkboxSelection: false, suppressSorting: true, field: "message",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellClass: rowColor, cellRenderer: function (params) {
+        return '<span style="text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
+      }
       },
       {
         headerName: 'Logger', width: 300, checkboxSelection: false, suppressSorting: true, field: "logger",
@@ -100,7 +123,6 @@ export class GridComponent {
   }
 
   private calculateRowCount() {
-    console.log("Calculate Row Count", this.gridOptions.api, " rowData:", this.rowData);
     if (this.gridOptions.api && this.rowData) {
       var model = this.gridOptions.api.getModel();
       var totalRows = this.rowData.length;
@@ -174,17 +196,28 @@ export class GridComponent {
   }
 
   private onRowClicked($event) {
-    console.log('onRowClicked: ' + $event.node.data.name);
+    console.log('onRowClicked: ' + $event.node.data);
   }
 
   private onQuickFilterChanged($event) {
     this.gridOptions.api.setQuickFilter($event.target.value);
   }
 
-  // here we use one generic event to handle all the column type events.
-  // the method just prints the event name
   private onColumnEvent($event) {
     console.log('onColumnEvent: ' + $event);
+    this.gridOptions.enableColResize = true;
+    let width = 601;
+    if ($event.type != "columnEverythingChanged") {
+      width = this.gridOptions.columnApi.getColumn("message").getActualWidth();
+    }
+
+    this.gridOptions.getRowHeight = function (params) {
+      // assuming 90 characters per line with 601px as width of column
+      let wordsByLine = (width * 90 / 601);
+      return 25 * (Math.floor(params.data.message.length / wordsByLine) + 1);
+    }
+
+    this.gridOptions.api.setRowData(this.rowData);
   }
 
 }
