@@ -213,8 +213,39 @@ export class GridComponent {
     this.gridOptions.context.pattern3Color = pattern3Color;
     this.gridOptions.context.pattern4Color = pattern4Color;
     this.gridOptions.context.pattern5Color = pattern5Color;
+
+    let i:number = 0;
+    this.gridOptions.rowData.map(e => {
+      if (((this.gridOptions.context.pattern1 != undefined) && this.gridOptions.context.pattern1 != '') &&
+        (e.message.toUpperCase().indexOf(this.gridOptions.context.pattern1.toUpperCase()) > -1)) {
+        if (this.gridOptions.context.pattern1List.indexOf(i) == -1) {
+          this.gridOptions.context.pattern1List.push(i);
+        }
+      } else if (((this.gridOptions.context.pattern2 != undefined) && this.gridOptions.context.pattern2 != '') &&
+        (e.message.toUpperCase().indexOf(this.gridOptions.context.pattern2.toUpperCase()) > -1)) {
+        if (this.gridOptions.context.pattern2List.indexOf(i) == -1) {
+          this.gridOptions.context.pattern2List.push(i);
+        }
+      } else if (((this.gridOptions.context.pattern3 != undefined) && this.gridOptions.context.pattern3 != '') &&
+        (e.message.toUpperCase().indexOf(this.gridOptions.context.pattern3.toUpperCase()) > -1)) {
+        if (this.gridOptions.context.pattern3List.indexOf(i) == -1) {
+          this.gridOptions.context.pattern3List.push(i);
+        }
+      } else if (((this.gridOptions.context.pattern4 != undefined) && this.gridOptions.context.pattern4 != '') &&
+        (e.message.toUpperCase().indexOf(this.gridOptions.context.pattern4.toUpperCase()) > -1)) {
+        if (this.gridOptions.context.pattern4List.indexOf(i) == -1) {
+          this.gridOptions.context.pattern4List.push(i);
+        }
+      } else if (((this.gridOptions.context.pattern5 != undefined) && this.gridOptions.context.pattern5 != '') &&
+        (e.message.toUpperCase().indexOf(this.gridOptions.context.pattern5.toUpperCase()) > -1)) {
+        if (this.gridOptions.context.pattern5List.indexOf(i) == -1) {
+          this.gridOptions.context.pattern5List.push(i);
+        }
+      }
+
+      i++;
+    })
     this.gridOptions.api.refreshView();
-    //this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
   }
 
   next(pattern:number) {
@@ -425,37 +456,23 @@ export class GridComponent {
 
     let getCellCss = function (params, css) {
       css['border-color'] = 'black';
-      css['border-width'] = '1px';
+      css['border-top'] = '1px';
+      css['border-left'] = '1px';
       if (((params.context.pattern1 != undefined) && params.context.pattern1 != '') &&
         (params.data.message.toUpperCase().indexOf(params.context.pattern1.toUpperCase()) > -1)) {
         css['color'] = params.context.pattern1Color;
-        if (params.context.pattern1List.indexOf(params.node.childIndex) == -1) {
-          params.context.pattern1List.push(params.node.childIndex);
-        }
       } else if (((params.context.pattern2 != undefined) && params.context.pattern2 != '') &&
         (params.data.message.toUpperCase().indexOf(params.context.pattern2.toUpperCase()) > -1)) {
         css['color'] = params.context.pattern2Color;
-        if (params.context.pattern2List.indexOf(params.node.childIndex) == -1) {
-          params.context.pattern2List.push(params.node.childIndex);
-        }
       } else if (((params.context.pattern3 != undefined) && params.context.pattern3 != '') &&
         (params.data.message.toUpperCase().indexOf(params.context.pattern3.toUpperCase()) > -1)) {
         css['color'] = params.context.pattern3Color;
-        if (params.context.pattern3List.indexOf(params.node.childIndex) == -1) {
-          params.context.pattern3List.push(params.node.childIndex);
-        }
       } else if (((params.context.pattern4 != undefined) && params.context.pattern4 != '') &&
         (params.data.message.toUpperCase().indexOf(params.context.pattern4.toUpperCase()) > -1)) {
         css['color'] = params.context.pattern4Color;
-        if (params.context.pattern4List.indexOf(params.node.childIndex) == -1) {
-          params.context.pattern4List.push(params.node.childIndex);
-        }
       } else if (((params.context.pattern5 != undefined) && params.context.pattern5 != '') &&
         (params.data.message.toUpperCase().indexOf(params.context.pattern5.toUpperCase()) > -1)) {
         css['color'] = params.context.pattern5Color;
-        if (params.context.pattern5List.indexOf(params.node.childIndex) == -1) {
-          params.context.pattern5List.push(params.node.childIndex);
-        }
       }
       return css;
     }
@@ -521,9 +538,8 @@ export class GridComponent {
   }
 
   private onModelUpdated() {
-    console.log('onModelUpdated');
     this.calculateRowCount();
-    //this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+    this.searchByPatterns(this.gridOptions.context.pattern1, this.gridOptions.context.pattern2, this.gridOptions.context.pattern3, this.gridOptions.context.pattern4, this.gridOptions.context.pattern5)
   }
 
 
