@@ -26,11 +26,11 @@ import {SearchAdvanceComponent} from '../../searchAdvance/components/searchAdvan
 @Component({
   selector: 'sd-app',
   templateUrl: './app/components/app.component.html',
-  directives: [ROUTER_DIRECTIVES, NavbarComponent, ToolbarComponent, SearchComponent, SearchAdvanceComponent]
+  directives: [ROUTER_DIRECTIVES, NavbarComponent, ToolbarComponent, SearchAdvanceComponent]
 })
 @RouteConfig([
-  {path: '/', name: 'Search', component: SearchComponent},
-  {path: '/advance', name: 'SearchAdvance', component: SearchAdvanceComponent},
+  {path: '/', name: 'SearchAdvance', component: SearchAdvanceComponent},
+ // {path: '/advance', name: 'SearchAdvance', component: SearchAdvanceComponent},
   {path: '/about', name: 'About', component: AboutComponent}
 ])
 export class AppComponent {
