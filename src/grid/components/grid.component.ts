@@ -118,6 +118,9 @@ export class GridComponent {
 
   scrollLock:boolean = false;
 
+  private rowDataSize:number = -1;
+  private currentRowSelectected:number = -1;
+
   private posActual:number = -1;
 
   private getNextPosition(element:number, array:Array<number>) {
@@ -231,6 +234,7 @@ export class GridComponent {
     this.pattern4Found = 0;
     this.pattern5Found = 0;
     this.posActual = -1;
+    this.currentRowSelectected = -1;
     this.gridOptions.api.deselectAll();
     this.gridOptions.api.refreshView();
   }
@@ -583,17 +587,26 @@ export class GridComponent {
       var totalRows = this.rowData.length;
       var processedRows = model.getRowCount();
       this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString();
+      if (this.rowDataSize != this.rowData.length) {
+        this.rowDataSize = this.rowData.length;
+      }
     }
   }
 
   private onModelUpdated() {
-    this.calculateRowCount();
-    if (!this.scrollLock) {
-      if (this.gridOptions.rowData.length > 0) {
-        this.gridOptions.api.selectIndex(this.gridOptions.rowData.length - 1);
-        this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
-      }
+    let rowSelect = -1;
+    if (this.scrollLock) {
+      rowSelect = this.currentRowSelectected;
+    } else if (!this.scrollLock && this.rowDataSize == this.rowData.length && this.currentRowSelectected != -1 && this.currentRowSelectected - 1 != this.rowData.length) {
+      rowSelect = this.currentRowSelectected;
+    } else {
+      rowSelect = this.gridOptions.rowData.length - 1;
     }
+    if (this.gridOptions.rowData.length > 0) {
+      this.gridOptions.api.selectIndex(rowSelect);
+      this.gridOptions.api.ensureIndexVisible(rowSelect);
+    }
+    this.calculateRowCount();
     this.searchByPatterns(this.gridOptions.context.pattern1Color, this.gridOptions.context.pattern2Color, this.gridOptions.context.pattern3Color, this.gridOptions.context.pattern4Color, this.gridOptions.context.pattern5Color)
   }
 
@@ -622,7 +635,9 @@ export class GridComponent {
   }
 
   private onRowSelected($event) {
-    console.log('onRowSelected: ', $event);
+    if ($event.node.selected) {
+      this.currentRowSelectected = $event.node.id;
+    }
   }
 
   private onSelectionChanged() {
@@ -664,20 +679,21 @@ export class GridComponent {
   }
 
   private onColumnEvent($event) {
-    console.log('onColumnEvent: ', $event);
-    this.gridOptions.enableColResize = true;
-    let width = 601;
-    if ($event.type != "columnEverythingChanged") {
-      width = this.gridOptions.columnApi.getColumn("message").getActualWidth();
-    }
+    if ($event.type == "columnEverythingChanged" || ($event.type == "columnResized" && $event.finished)) {
+      this.gridOptions.enableColResize = true;
+      let width = 601;
+      if ($event.type != "columnEverythingChanged") {
+        width = this.gridOptions.columnApi.getColumn("message").getActualWidth();
+      }
 
-    this.gridOptions.getRowHeight = function (params) {
-      // assuming 90 characters per line with 601px as width of column
-      let wordsByLine = (width * 90 / 601);
-      return 25 * (Math.floor(params.data.message.length / wordsByLine) + 1);
-    }
+      this.gridOptions.getRowHeight = function (params) {
+        // assuming 90 characters per line with 601px as width of column
+        let wordsByLine = (width * 90 / 601);
+        return 25 * (Math.floor(params.data.message.length / wordsByLine) + 1);
+      }
 
-    this.gridOptions.api.setRowData(this.rowData);
+      this.gridOptions.api.setRowData(this.rowData);
+    }
   }
 
 }
