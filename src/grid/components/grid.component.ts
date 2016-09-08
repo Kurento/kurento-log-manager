@@ -39,7 +39,12 @@ const RESULTS_PER_REQUEST = 50;
 
 export class GridComponent {
 
+  ngOnInit() {
+    this.gridHeight = window.innerHeight + "px";
+  }
+
   constructor(private _elasticSearchService:ElasticSearchService, private http:Http) {
+
     // we pass an empty gridOptions in, so we can grab the api out
     this.gridOptions = <GridOptions>{};
     this.gridOptions = {
@@ -82,6 +87,8 @@ export class GridComponent {
   hosts:string;
   message:string;
   thread:string;
+
+  gridHeight:string;
 
   pattern1:string;
   pattern2:string;
@@ -135,6 +142,10 @@ export class GridComponent {
 
   private sorted(a:number, b:number) {
     return a - b
+  }
+
+  onResize(event) {
+    this.gridHeight = event.currentTarget.innerHeight + "px";
   }
 
   addPattern() {
