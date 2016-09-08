@@ -2,8 +2,12 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
-
         <form class="form-inline">
+          <div class="form-group form-group-sm ">
+            <label>Elastic URL</label>
+            <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
+                   value="http://localhost:9200/">
+          </div>
           <div class="col-md-14">
             <label>Range</label>
             <div class="form-group form-group-sm ">
@@ -50,12 +54,11 @@
 
           <div class="col-md-14">
             <label>Type</label>
-            <input #test type="checkbox" class="form-control input-sm" (change)="testType = test.checked"> test
+            <input #test type="checkbox" class="form-control input-sm" (change)="testType = test.checked" checked> test
             <input #cluster type="checkbox" class="form-control input-sm" (change)="clusterType = cluster.checked"
                    checked> cluster
-            <input #kms type="checkbox" class="form-control input-sm" (change)="kmsType = kms.checked"> kms
+            <input #kms type="checkbox" class="form-control input-sm" (change)="kmsType = kms.checked" checked> kms
           </div>
-
           <div class="col-md-14">
             <label>Level</label>
             <input #debug class="form-control input-sm" type="checkbox" (change)="debugLevel = debug.checked"

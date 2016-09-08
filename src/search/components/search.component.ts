@@ -37,6 +37,7 @@ export class SearchComponent {
     this.showGrid = false;
   }
 
+
   private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
   private defaultTo = new Date(new Date().valueOf() - (1 * 60 * 60 * 1000));
   private guiquery:string;
@@ -55,10 +56,13 @@ export class SearchComponent {
   warnLevel:boolean = true;
   errorLevel:boolean = true;
 
+  urlElastic:string = "http://localhost:9200/";
   loggers:string;
   hosts:string;
   message:string;
   thread:string;
+  simpleSearch:string;
+  maxResults:number = 50;
 
 
   private processCommaSeparatedValue(value:string) {
@@ -77,14 +81,13 @@ export class SearchComponent {
     let filter:any = {}
     if (values.length > 1) {
       filter[field] = values;
-      queryes.filtered.filter.bool.should.push({
+      queryes.filtered.filter.bool.must.push({
         "terms": filter
       })
     } else if (values.length == 1) {
       filter[field] = values[0];
-      queryes.filtered.filter.bool.should.push({
-        "match": filter
-      })
+      let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
+      queryes.filtered.filter.bool.must.push(JSON.parse(filterValue))
     }
   }
 
@@ -96,8 +99,8 @@ export class SearchComponent {
     return dateToInputLiteral(this.defaultTo);
   }
 
-  search(from:string, to:string, valueToSearch:string, append:boolean = false) {
-    console.log("Searching:", from, to, valueToSearch);
+  search(from:string, to:string, append:boolean = false) {
+    console.log("Searching:", from, to);
 
     this.showGrid = false;
     this.waiting = true;
@@ -140,7 +143,7 @@ export class SearchComponent {
       logLevels.push('error');
     }
 
-    let url = ES_URL + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let url = this.urlElastic + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log(this.guiquery);
 
@@ -156,7 +159,7 @@ export class SearchComponent {
       "filtered": {
         "filter": {
           "bool": {
-            "should": [
+            "must": [
               {
                 "range": {
                   "@timestamp": {
@@ -172,15 +175,14 @@ export class SearchComponent {
     }
 
     this.addTermFilter(queryes, 'loglevel', logLevels);
-    this.addTermFilter(queryes, 'type', types);
+    this.addTermFilter(queryes, '_type', types);
 
     /* let loggers = this.processCommaSeparatedValue(valueToSearch);
      this.addTermFilter(queryes, 'loggername', loggers);
 
      let hosts = this.processCommaSeparatedValue(valueToSearch);
      this.addTermFilter(queryes, 'host', hosts);*/
-
-    let message = this.processCommaSeparatedValue(valueToSearch);
+    let message = this.processCommaSeparatedValue(this.simpleSearch);
     this.addTermFilter(queryes, 'message', message);
 
     /*    let thread = this.processCommaSeparatedValue(valueToSearch);
@@ -193,15 +195,13 @@ export class SearchComponent {
       sort: [
         {'@timestamp': sort}
       ],
-      //query: JSON.parse(this.guiquery),
       query: queryes,
-      size: RESULTS_PER_REQUEST,
+      size: this.maxResults,
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
 
-    let maxResults = 50;
 
-    this._elasticSearchService.internalSearch(url, esquery, maxResults, append).subscribe(
+    this._elasticSearchService.internalSearch(url, esquery, this.maxResults, append).subscribe(
       data => {
         console.log("Data:", data);
         this.rowData = data;
@@ -210,33 +210,6 @@ export class SearchComponent {
       },
       err => console.log('Error', err)
     )
-    /*this.showGrid = true;
-    this.waiting = false;
-    this.rowData = [{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    },{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    },{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    }];*/
   }
 
 }

@@ -1,3 +1,20 @@
+/*
+ * (C) Copyright 2016 Kurento (http://kurento.org/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import {Component} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
@@ -29,7 +46,7 @@ export class SearchAdvanceComponent {
   private showGrid:boolean;
   private waiting:boolean = false;
 
-  testType:boolean = false;
+  testType:boolean = true;
   clusterType:boolean = true;
   kmsType:boolean = true;
 
@@ -38,6 +55,7 @@ export class SearchAdvanceComponent {
   warnLevel:boolean = true;
   errorLevel:boolean = true;
 
+  urlElastic:string = 'http://localhost:9200/';
   loggers:string;
   hosts:string;
   message:string;
@@ -65,9 +83,8 @@ export class SearchAdvanceComponent {
       })
     } else if (values.length == 1) {
       filter[field] = values[0];
-      queryes.filtered.filter.bool.must.push({
-        "match": filter
-      })
+      let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
+      queryes.filtered.filter.bool.must.push(JSON.parse(filterValue))
     }
   }
 
@@ -79,18 +96,18 @@ export class SearchAdvanceComponent {
     return dateToInputLiteral(this.defaultTo);
   }
 
-  search(from:string, to:string, valueToSearch:string, append:boolean = false) {
-    console.log("Searching:", from, to, valueToSearch);
-
+  search(from:string, to:string, maxResults:string, append:boolean = false) {
     this.showGrid = false;
     this.waiting = true;
     this.rowData = [];
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
 
-    let query = "";
-
     let types = [];
+
+    if (this.testType) {
+      types.push('test');
+    }
 
     if (this.clusterType) {
       types.push('cluster');
@@ -119,7 +136,7 @@ export class SearchAdvanceComponent {
       logLevels.push('error');
     }
 
-    let url = ES_URL + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+    let url = this.urlElastic + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log(this.guiquery);
 
@@ -151,19 +168,19 @@ export class SearchAdvanceComponent {
     }
 
     this.addTermFilter(queryes, 'loglevel', logLevels);
-    this.addTermFilter(queryes, 'type', types);
+    this.addTermFilter(queryes, '_type', types);
 
-    let loggers = this.processCommaSeparatedValue(valueToSearch);
-     this.addTermFilter(queryes, 'loggername', loggers);
+    let loggers = this.processCommaSeparatedValue(this.loggers);
+    this.addTermFilter(queryes, 'loggername', loggers);
 
-     let hosts = this.processCommaSeparatedValue(valueToSearch);
-     this.addTermFilter(queryes, 'host', hosts);
+    let hosts = this.processCommaSeparatedValue(this.hosts);
+    this.addTermFilter(queryes, 'host', hosts);
 
-    let message = this.processCommaSeparatedValue(valueToSearch);
+    let message = this.processCommaSeparatedValue(this.message);
     this.addTermFilter(queryes, 'message', message);
 
-      let thread = this.processCommaSeparatedValue(valueToSearch);
-     this.addTermFilter(queryes, 'threadid', thread);
+    let thread = this.processCommaSeparatedValue(this.thread);
+    this.addTermFilter(queryes, 'threadid', thread);
 
     console.log("Query: ", queryes);
     console.log('-----------------------------------------------------------------');
@@ -172,58 +189,20 @@ export class SearchAdvanceComponent {
       sort: [
         {'@timestamp': sort}
       ],
-      //query: JSON.parse(this.guiquery),
       query: queryes,
-      size: RESULTS_PER_REQUEST,
+      size: maxResults,
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
 
-    let maxResults = 50;
-
     this._elasticSearchService.internalSearch(url, esquery, maxResults, append).subscribe(
-     data => {
-     console.log("Data:", data);
-     this.rowData = data;
-     this.showGrid = true;
-     this.waiting = false;
-     },
-     err => console.log('Error', err)
-     )
-    /*this.showGrid = true;
-    this.waiting = false;
-    this.rowData = [{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    },{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    },{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    },{
-      "host": "kms-room-ip-10-0-20-47",
-      "level": "INFO",
-      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
-      "message": "Published load metric 0.0 to AWS CloudWathService",
-      "thread": "Timer-0",
-      "time": "2016-04-18T04:52:15.595Z",
-      "type": "cluster"
-    }];*/
+      data => {
+        console.log("Data:", data);
+        this.rowData = data;
+        this.showGrid = true;
+        this.waiting = false;
+      },
+      err => console.log('Error', err)
+    )
   }
 
 }
