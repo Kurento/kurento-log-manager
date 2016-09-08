@@ -101,6 +101,12 @@ export class GridComponent {
   pattern4Pos:number = -1;
   pattern5Pos:number = -1;
 
+  pattern1Show:boolean = false;
+  pattern2Show:boolean = false;
+  pattern3Show:boolean = false;
+  pattern4Show:boolean = false;
+  pattern5Show:boolean = false;
+
   numPattern:number = 0;
 
   private posActual:number = -1;
@@ -132,39 +138,53 @@ export class GridComponent {
   }
 
   addPattern() {
-    this.numPattern++;
+    if (!this.pattern1Show) {
+      this.pattern1Show = true;
+    } else if (!this.pattern2Show) {
+      this.pattern2Show = true;
+    } else if (!this.pattern3Show) {
+      this.pattern3Show = true;
+    } else if (!this.pattern4Show) {
+      this.pattern4Show = true;
+    } else if (!this.pattern5Show) {
+      this.pattern5Show = true;
+    }
   }
 
 
   removePattern(pattern) {
-    this.numPattern--;
-
     if (pattern == 1) {
       this.pattern1 = '';
       this.gridOptions.context.pattern1 = 'NO DATA';
       this.gridOptions.context.pattern1Color = '#000000';
       this.gridOptions.context.pattern1List = [];
+      this.pattern1Show = false;
     } else if (pattern == 2) {
       this.pattern2 = '';
       this.gridOptions.context.pattern2 = 'NO DATA';
       this.gridOptions.context.pattern2Color = '#000000';
       this.gridOptions.context.pattern2List = [];
+      this.pattern2Show = false;
     } else if (pattern == 3) {
       this.pattern3 = '';
       this.gridOptions.context.pattern3 = 'NO DATA';
       this.gridOptions.context.pattern3Color = '#000000';
       this.gridOptions.context.pattern3List = [];
+      this.pattern3Show = false;
     } else if (pattern == 4) {
       this.pattern4 = '';
       this.gridOptions.context.pattern4 = 'NO DATA';
       this.gridOptions.context.pattern4Color = '#000000';
       this.gridOptions.context.pattern4List = [];
+      this.pattern4Show = false;
     } else if (pattern == 5) {
       this.pattern5 = '';
       this.gridOptions.context.pattern5 = 'NO DATA';
       this.gridOptions.context.pattern5Color = '#000000';
       this.gridOptions.context.pattern5List = [];
+      this.pattern5Show = false;
     }
+
     this.gridOptions.api.refreshView();
   }
 

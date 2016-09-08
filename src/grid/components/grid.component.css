@@ -84,3 +84,12 @@
   margin-left: 0px;
 }
 
+.patternDiv {
+  margin: 6px 4px 7px 0px;
+  width: 216px !important;
+}
+
+.buttonPatternDiv {
+  margin: 5px 0px 5px -13px;
+}
+
