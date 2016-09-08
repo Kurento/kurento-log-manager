@@ -99,6 +99,8 @@ export class GridComponent {
 
   numPattern:number = 0;
 
+  scrollLock:boolean = false;
+
   private posActual:number = -1;
 
   private getNextPosition(element:number, array:Array<number>) {
@@ -539,7 +541,11 @@ export class GridComponent {
 
   private onModelUpdated() {
     this.calculateRowCount();
-    this.searchByPatterns(this.gridOptions.context.pattern1, this.gridOptions.context.pattern2, this.gridOptions.context.pattern3, this.gridOptions.context.pattern4, this.gridOptions.context.pattern5)
+    if (!this.scrollLock) {
+      this.gridOptions.api.selectIndex(this.gridOptions.rowData.length - 1);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+    }
+    this.searchByPatterns(this.gridOptions.context.pattern1Color, this.gridOptions.context.pattern2Color, this.gridOptions.context.pattern3Color, this.gridOptions.context.pattern4Color, this.gridOptions.context.pattern5Color)
   }
 
 
