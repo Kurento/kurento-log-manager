@@ -39,9 +39,18 @@ export class SearchAdvanceComponent {
 
     let autoSearch:boolean = false;
 
-    console.log(decodeURIComponent(params.get('urlElastic')));
     if (params.get('urlElastic') != null) {
       this.urlElastic = decodeURIComponent(params.get('urlElastic'));
+      autoSearch = true;
+    }
+
+    if (params.get('clusterName') != null) {
+      this.clusterName = decodeURIComponent(params.get('clusterName'));
+      autoSearch = true;
+    }
+
+    if (params.get('indexName') != null) {
+      this.indexName = decodeURIComponent(params.get('indexName'));
       autoSearch = true;
     }
 
@@ -131,13 +140,13 @@ export class SearchAdvanceComponent {
     if (params.get('from') != null) {
       autoSearch = true;
       this.defaultFrom = new Date(Date.parse(decodeURIComponent(params.get('from'))));
-      this.defaultFrom.setTime(this.defaultFrom.getTime() + this.defaultFrom.getTimezoneOffset()*60*1000 );
+      this.defaultFrom.setTime(this.defaultFrom.getTime() + this.defaultFrom.getTimezoneOffset() * 60 * 1000);
     }
 
     if (params.get('to') != null) {
       autoSearch = true;
       this.defaultTo = new Date(Date.parse(decodeURIComponent(params.get('to'))));
-      this.defaultTo.setTime(this.defaultTo.getTime() + this.defaultTo.getTimezoneOffset()*60*1000 );
+      this.defaultTo.setTime(this.defaultTo.getTime() + this.defaultTo.getTimezoneOffset() * 60 * 1000);
     }
 
     if (autoSearch) {
@@ -165,6 +174,8 @@ export class SearchAdvanceComponent {
   errorLevel:boolean = true;
 
   urlElastic:string = 'http://localhost:9200/';
+  clusterName:string;
+  indexName:string;
   loggers:string;
   hosts:string;
   message:string;
@@ -189,13 +200,15 @@ export class SearchAdvanceComponent {
     let filter:any = {}
     if (values.length > 1) {
       filter[field] = values;
+      //queryes.indices.query.filtered.filter.bool.must.push({
       queryes.filtered.filter.bool.must.push({
         "terms": filter
       })
     } else if (values.length == 1) {
       filter[field] = values[0];
       let filterValue = "{\"match\":{\"" + field + "\" : {\"query\" : \"" + values.join(" ") + "\",\"type\": \"phrase\" }}}";
-      queryes.filtered.filter.bool.must.push(JSON.parse(filterValue))
+      queryes.filtered.filter.bool.must.push(JSON.parse(filterValue));
+      //queryes.indices.query.filtered.filter.bool.must.push(JSON.parse(filterValue))
     }
   }
 
@@ -210,6 +223,14 @@ export class SearchAdvanceComponent {
     this.urlCopied = document.URL + '?';
     if (this.urlElastic != undefined) {
       this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
+    }
+
+    if (this.clusterName != undefined) {
+      this.urlCopied += 'clusterName=' + encodeURIComponent(this.clusterName) + '&';
+    }
+
+    if (this.indexName != undefined) {
+      this.urlCopied += 'indexName=' + encodeURIComponent(this.indexName) + '&';
     }
 
     if (this.message != undefined) {
@@ -279,6 +300,23 @@ export class SearchAdvanceComponent {
     return dateToInputLiteral(this.defaultTo);
   }
 
+  getDifferenceDates(from:string, to:string):number {
+    let date1:string[] = to.split('T')[0].split('-');
+    let date2:string[] = from.split('T')[0].split('-');
+
+    let date1_:Date = new Date(date1);
+    let date2_:Date = new Date(date2);
+
+    var date1Unixtime:number = parseInt(date1_.getTime() / 1000);
+    var date2Unixtime:number = parseInt(date2_.getTime() / 1000);
+
+    var timeDifference = date2Unixtime - date1Unixtime;
+
+    var timeDifferenceInDays = Math.abs(timeDifference / 60 / 60 / 24);
+
+    return timeDifferenceInDays;
+  }
+
   search(from:string, to:string, append:boolean = false) {
     this.generateCopyUrl(from, to);
     this.showGrid = false;
@@ -320,10 +358,10 @@ export class SearchAdvanceComponent {
       logLevels.push('error');
     }
 
-    let index = '<kurento-*-' + from.split('T')[0].replace(/-/g, '.') + ">";
-    let url = this.urlElastic + INDEX + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
-
-    console.log("URL:", url);
+    // Use clusterName
+    if (this.clusterName == undefined || this.clusterName == '') {
+      this.clusterName = "*";
+    }
 
     let queryfrom:any;
     let queryto:any;
@@ -351,6 +389,60 @@ export class SearchAdvanceComponent {
         }
       }
     }
+
+//    let index = 'kurento-' + this.clusterName + '-' + from.split('T')[0].replace(/-/g, '.');
+
+    let index_:string = "";
+
+    if (this.indexName == undefined || this.indexName == "") {
+      let today = dateToInputLiteral(new Date(new Date().valueOf()));
+      let differenceFromAndToday = this.getDifferenceDates(from, today);
+      let differenceTodayAndTo = this.getDifferenceDates(today, to);
+
+      for (var i = differenceFromAndToday; i >= differenceTodayAndTo; i--) {
+        if (i == 0) {
+          index_ += '<kurento-' + this.clusterName + '-{now%2Fd}>';
+        } else {
+          index_ += '<kurento-' + this.clusterName + '-{now%2Fd-' + i + 'd}>';
+          if (i != differenceTodayAndTo) {
+            index_ += ',';
+          }
+        }
+      }
+    } else {
+      index_ = this.indexName;
+    }
+
+    let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
+
+    console.log("URL:", url);
+
+    // Create index
+
+    /* let queryes:any = {
+     "indices": {
+     "indices": [index],
+     "query": {
+     "filtered": {
+     "filter": {
+     "bool": {
+     "must": [
+     {
+     "range": {
+     "@timestamp": {
+     "gte": queryfrom,
+     "lte": queryto
+     }
+     }
+     }
+     ]
+     }
+     }
+     }
+     },
+     "no_match_query": "none"
+     }
+     }*/
 
     this.addTermFilter(queryes, 'loglevel', logLevels);
     this.addTermFilter(queryes, '_type', types);

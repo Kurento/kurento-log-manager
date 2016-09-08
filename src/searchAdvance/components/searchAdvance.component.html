@@ -7,6 +7,12 @@
             <label>Elastic URL</label>
             <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
                    value="">
+            <label>Cluster Name</label>
+            <input type="string" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName"
+                   value="">
+            <label>Index</label>
+            <input type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName"
+                   value="">
             <button *ngIf="showGrid" class="btn btn-sm" (click)="copyToClipboard()">
               Copy to clipboard
             </button>
