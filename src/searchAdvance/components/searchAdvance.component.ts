@@ -186,6 +186,7 @@ export class SearchAdvanceComponent {
   thread:string;
   maxResults:number = 50;
   urlCopied:string;
+  showLoadMore:boolean = false;
 
 
   private processCommaSeparatedValue(value:string) {
@@ -482,6 +483,7 @@ export class SearchAdvanceComponent {
         this.rowData = data;
         this.showGrid = true;
         this.waiting = false;
+        this.showLoadMore = true;
       },
       err => {
         console.log('Error', err);
@@ -489,6 +491,7 @@ export class SearchAdvanceComponent {
         this.showGrid = false;
         this.showError = true;
         this.waiting = false;
+        this.showLoadMore = false;
       }
     )
   }

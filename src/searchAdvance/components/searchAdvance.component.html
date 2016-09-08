@@ -92,6 +92,8 @@
           </div>
           <button (click)="search(from.value, to.value, false)" class="btn btn-default">Search
           </button>
+          <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load More
+          </button>
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
