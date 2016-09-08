@@ -1,103 +1,180 @@
+<script>
+  function toggleChevron(e) {
+    console.log(e.target);
+    $(e.target)
+      .prev('.panel-heading')
+      .find("i.indicator")
+      .toggleClass('glyphicon-chevron-up glyphicon-chevron-down');
+  }
+</script>
 <div class="main" xmlns="http://www.w3.org/1999/html">
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
         <form class="form-inline">
-          <div class="form-group form-group-sm ">
-            <label>Elastic URL</label>
-            <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
-                   value="">
-            <label>Cluster Name</label>
-            <input type="string" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName"
-                   value="">
-            <label>Index</label>
-            <input type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName"
-                   value="">
-            <button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
-              Copy to clipboard
-            </button>
-            <textarea *ngIf="showGrid && !showPauseTail" rows="2" cols="150" class="js-copytextarea" [(ngModel)]="urlCopied"></textarea>
+          <div class="col-md-12">
+            <div class="form-group form-group-sm ">
+              <label>Elastic URL</label>
+              <input type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic"
+                     value="">
+              <label>Cluster Name</label>
+              <input type="string" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName"
+                     value="">
+              <label>Index</label>
+              <input type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName"
+                     value="">
+            </div>
+            <div class="form-group form-group-sm">
+              Max log entries
+              <input type="number" class="form-control input-sm" id="max_results" value="50" [(ngModel)]="maxResults">
+            </div>
           </div>
-          <div class="form-group form-group-sm">
-            Max log entries
-            <input type="number" class="form-control input-sm" id="max_results" value="50" [(ngModel)]="maxResults">
-          </div>
-          <div class="col-md-14">
-            <label>Range</label>
-            <div>
-              <input type="radio" name="typeSearch" value="false" (click)="setUseTail(false)" checked="checked">By Date
-              <div class="form-group form-group-sm ">
-                From
-                <input #from type="datetime-local" class="form-control input-sm" id="form" placeholder="Yesterday"
-                       novalidate="true"
-                       [value]="getDefaultFromValue()"
-                       step=1>
-              </div>
-              <div class="form-group form-group-sm">
-                To
-                <input #to type="datetime-local" class="form-control input-sm" id="to" placeholder="Now"
-                       novalidate="true"
-                       [value]="getDefaultToValue()" step=1>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#rangeCollapse">Range</a>
+                  </h4>
+                </div>
+                <div id="rangeCollapse" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div>
+                      <input type="radio" name="typeSearch" value="false" (click)="setUseTail(false)" checked="checked">By
+                      Date
+                      <div class="form-group form-group-sm">
+                        From
+                        <input #from type="datetime-local" class="form-control input-sm" id="form"
+                               placeholder="Yesterday"
+                               novalidate="true"
+                               [value]="getDefaultFromValue()"
+                               step=1>
+                        <br/>
+                        To
+                        <input #to type="datetime-local" class="form-control input-sm" style="margin-left:21px" id="to"
+                               placeholder="Now"
+                               novalidate="true"
+                               [value]="getDefaultToValue()" step=1>
+                      </div>
+                    </div>
+                    <div>
+                      <input type="radio" name="typeSearch" value="true" (click)="setUseTail(true)">By Tail
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <input type="radio" name="typeSearch" value="true" (click)="setUseTail(true)">By Tail
+
+            <div class="col-md-3">
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#fieldsCollapse">Fields
+                    </a>
+                  </h4>
+                </div>
+                <div id="fieldsCollapse" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="form-group form-group-sm">
+                      <span>Message</span>
+                      <input #messageCmp class="form-control input-sm" style="margin-left:30px" id="message" value=""
+                             [(ngModel)]="message"
+                             placeholder="Search on message">
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <span>Loggers</span>
+                      <input #loggersCmp class="form-control input-sm" style="margin-left:37px" id="loggers" value=""
+                             [(ngModel)]="loggers"
+                             placeholder="Search on loggers">
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <span>Hosts</span>
+                      <input #hostsCmp class="form-control input-sm" style="margin-left:53px" id="hosts" value=""
+                             [(ngModel)]="hosts"
+                             placeholder="Search on hosts">
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <span>Thread</span>
+                      <input class="form-control input-sm" style="margin-left:45px" id="thread" value=""
+                             [(ngModel)]="thread"
+                             placeholder="Search on thread">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#typeCollapse">Type</a>
+                  </h4>
+                </div>
+                <div id="typeCollapse" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="form-group form-group-sm">
+                      <input #test type="checkbox" class="form-control input-sm" [(ngModel)]="testType"
+                             (change)="testType = test.checked"> test
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <input #cluster type="checkbox" class="form-control input-sm" [(ngModel)]="clusterType"
+                             (change)="clusterType = cluster.checked"
+                             checked> cluster
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <input #kms type="checkbox" class="form-control input-sm" [(ngModel)]="kmsType"
+                             (change)="kmsType = kms.checked" checked> kms
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#logLevelCollapse">Log Level</a>
+                  </h4>
+                </div>
+                <div id="logLevelCollapse" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <div class="form-group form-group-sm">
+                      <input #debug class="form-control input-sm" type="checkbox" [(ngModel)]="debugLevel"
+                             (change)="debugLevel = debug.checked"
+                             checked> DEBUG
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <input #info type="checkbox" class="form-control input-sm" [(ngModel)]="infoLevel"
+                             (change)="infoLevel = info.checked" checked> INFO
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <input #warn type="checkbox" class="form-control input-sm" [(ngModel)]="warnLevel"
+                             (change)="warnLevel = warn.checked" checked> WARN
+                    </div>
+                    <div class="form-group form-group-sm">
+                      <input #error type="checkbox" class="form-control input-sm" [(ngModel)]="errorLevel"
+                             (change)="errorLevel = error.checked" checked> ERROR
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-14">
-            <label>Fields</label>
-            <div class="form-group form-group-sm">
-              Message
-              <input #messageCmp class="form-control input-sm" id="message" value="" [(ngModel)]="message"
-                     placeholder="Search on message">
-            </div>
-            <div class="form-group form-group-sm">
-              Loggers
-              <input #loggersCmp class="form-control input-sm" id="loggers" value="" [(ngModel)]="loggers"
-                     placeholder="Search on loggers">
-            </div>
-            <div class="form-group form-group-sm">
-              Hosts
-              <input #hostsCmp class="form-control input-sm" id="hosts" value="" [(ngModel)]="hosts"
-                     placeholder="Search on hosts">
-            </div>
-            <div class="form-group form-group-sm">
-              Thread
-              <input class="form-control input-sm" id="thread" value="" [(ngModel)]="thread"
-                     placeholder="Search on thread">
-            </div>
+          <div>
+            <button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
+            </button>
+            <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load
+              More
+            </button>
+            <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm"
+                   (change)="tailSearch(!tail.checked)"> <label *ngIf="showPauseTail">Pause Tail</label>
+            <button *ngIf="showClearData" (click)="clearData()" class="btn btn-default">Clear Data
+            </button>
+            <button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
+              Copy to Clipboard <br/> Share this search
+            </button>
           </div>
-          <div class="col-md-14">
-            <label>Type</label>
-            <input #test type="checkbox" class="form-control input-sm" [(ngModel)]="testType"
-                   (change)="testType = test.checked"> test
-            <input #cluster type="checkbox" class="form-control input-sm" [(ngModel)]="clusterType"
-                   (change)="clusterType = cluster.checked"
-                   checked> cluster
-            <input #kms type="checkbox" class="form-control input-sm" [(ngModel)]="kmsType"
-                   (change)="kmsType = kms.checked" checked> kms
-          </div>
-          <div class="col-md-14">
-            <label>Level</label>
-            <input #debug class="form-control input-sm" type="checkbox" [(ngModel)]="debugLevel"
-                   (change)="debugLevel = debug.checked"
-                   checked> DEBUG
-            <input #info type="checkbox" class="form-control input-sm" [(ngModel)]="infoLevel"
-                   (change)="infoLevel = info.checked" checked> INFO
-            <input #warn type="checkbox" class="form-control input-sm" [(ngModel)]="warnLevel"
-                   (change)="warnLevel = warn.checked" checked> WARN
-            <input #error type="checkbox" class="form-control input-sm" [(ngModel)]="errorLevel"
-                   (change)="errorLevel = error.checked" checked> ERROR
-          </div>
-          <button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
-          </button>
-          <button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)" class="btn btn-default">Load More
-          </button>
-          <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm"
-                 (change)="tailSearch(!tail.checked)"> <label *ngIf="showPauseTail">Pause Tail</label>
-          <button *ngIf="showClearData" (click)="clearData()" class="btn btn-default">Clear Data
-          </button>
         </form>
       </div>
       <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
@@ -106,4 +183,6 @@
       </div>
     </div>
   </div>
+  <textarea *ngIf="showGrid && !showPauseTail" rows="2" cols="150" class="js-copytextarea"
+            [(ngModel)]="urlCopied"></textarea>
 </div>

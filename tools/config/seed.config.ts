@@ -60,7 +60,10 @@ export class SeedConfig {
     {src: 'angular2/bundles/router.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
     {src: 'angular2/bundles/http.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
     {src: 'ag-grid/dist/ag-grid.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
-    {src: 'ag-grid-enterprise/dist/ag-grid-enterprise.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT}
+    {src: 'ag-grid-enterprise/dist/ag-grid-enterprise.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'jquery/dist/jquery.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT}
+
   ];
 
   // Declare local files that needs to be injected
