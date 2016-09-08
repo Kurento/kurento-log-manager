@@ -15,9 +15,12 @@
         <input type="checkbox" style="margin-top:2px" (change)="showToolPanel=$event.target.checked"/>
       </div>
       Search in the results:
+      <button *ngIf="numPattern < 5"
+              (click)="addPattern()" class="btn btn-default">Add pattern
+      </button>
       <form class="form-inline">
         <div class="col-md-14">
-          <div class="form-group form-group-sm">
+          <div [style.display]="numPattern > 0 ?'':'none'" class="form-group form-group-sm">
             <input #messageCmp class="form-control input-sm" id="pattern1" value="" [(ngModel)]="pattern1"
                    placeholder="Search on message">
             <input #pattern1Color type="color" name="favcolor" value="#ff0000" id="pattern1Color">
@@ -27,8 +30,11 @@
             <button
               (click)="next(1)" class="btn btn-default">Next
             </button>
+            <button
+              (click)="removePattern(1)" class="btn btn-default">X
+            </button>
           </div>
-          <div class="form-group form-group-sm">
+          <div [style.display]="numPattern > 1 ?'':'none'" class="form-group form-group-sm">
             <input #messageCmp class="form-control input-sm" id="pattern2" value="" [(ngModel)]="pattern2"
                    placeholder="Search on message">
             <input #pattern2Color type="color" name="favcolor" value="#00ff00" id="pattern2Color">
@@ -38,8 +44,11 @@
             <button
               (click)="next(2)" class="btn btn-default">Next
             </button>
+            <button
+              (click)="removePattern(2)" class="btn btn-default">X
+            </button>
           </div>
-          <div class="form-group form-group-sm">
+          <div [style.display]="numPattern > 2 ?'':'none'" class="form-group form-group-sm">
             <input #messageCmp class="form-control input-sm" id="pattern3" value="" [(ngModel)]="pattern3"
                    placeholder="Search on message">
             <input #pattern3Color type="color" name="favcolor" value="#0000ff" id="pattern3Color">
@@ -49,8 +58,11 @@
             <button
               (click)="next(3)" class="btn btn-default">Next
             </button>
+            <button
+              (click)="removePattern(3)" class="btn btn-default">X
+            </button>
           </div>
-          <div class="form-group form-group-sm">
+          <div [style.display]="numPattern > 3 ?'':'none'" class="form-group form-group-sm">
             <input #messageCmp class="form-control input-sm" id="pattern4" value="" [(ngModel)]="pattern4"
                    placeholder="Search on message">
             <input #pattern4Color type="color" name="favcolor" value="#ff00ff" id="pattern4Color">
@@ -60,8 +72,11 @@
             <button
               (click)="next(4)" class="btn btn-default">Next
             </button>
+            <button
+              (click)="removePattern(4)" class="btn btn-default">X
+            </button>
           </div>
-          <div class="form-group form-group-sm">
+          <div [style.display]="numPattern > 4 ?'':'none'" class="form-group form-group-sm">
             <input #messageCmp class="form-control input-sm" id="pattern5" value="" [(ngModel)]="pattern5"
                    placeholder="Search on message">
             <input #pattern5Color type="color" name="favcolor" value="#ffff00" id="pattern5Color">
@@ -71,15 +86,17 @@
             <button
               (click)="next(5)" class="btn btn-default">Next
             </button>
+            <button
+              (click)="removePattern(5)" class="btn btn-default">X
+            </button>
           </div>
         </div>
-
-        <button
-          (click)="searchByPatterns(pattern1Color.value, pattern2Color.value, pattern3Color.value, pattern4Color.value, pattern5Color.value)"
-          class="btn btn-default">Search
+        <button [style.display]="numPattern > 0 ?'':'none'"
+                (click)="searchByPatterns(pattern1Color.value, pattern2Color.value, pattern3Color.value, pattern4Color.value, pattern5Color.value)"
+                class="btn btn-default">Search
         </button>
-        <button
-          (click)="clearPatterns()" class="btn btn-default">Clear
+        <button [style.display]="numPattern > 0 ?'':'none'"
+                (click)="clearPatterns()" class="btn btn-default">Clear
         </button>
 
       </form>

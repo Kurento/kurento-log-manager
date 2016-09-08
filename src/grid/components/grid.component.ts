@@ -101,6 +101,8 @@ export class GridComponent {
   pattern4Pos:number = -1;
   pattern5Pos:number = -1;
 
+  numPattern:number = 0;
+
   private posActual:number = -1;
 
   private getNextPosition(element, array) {
@@ -129,6 +131,43 @@ export class GridComponent {
     return a - b
   }
 
+  addPattern() {
+    this.numPattern++;
+  }
+
+
+  removePattern(pattern) {
+    this.numPattern--;
+
+    if (pattern == 1) {
+      this.pattern1 = '';
+      this.gridOptions.context.pattern1 = 'NO DATA';
+      this.gridOptions.context.pattern1Color = '#000000';
+      this.gridOptions.context.pattern1List = [];
+    } else if (pattern == 2) {
+      this.pattern2 = '';
+      this.gridOptions.context.pattern2 = 'NO DATA';
+      this.gridOptions.context.pattern2Color = '#000000';
+      this.gridOptions.context.pattern2List = [];
+    } else if (pattern == 3) {
+      this.pattern3 = '';
+      this.gridOptions.context.pattern3 = 'NO DATA';
+      this.gridOptions.context.pattern3Color = '#000000';
+      this.gridOptions.context.pattern3List = [];
+    } else if (pattern == 4) {
+      this.pattern4 = '';
+      this.gridOptions.context.pattern4 = 'NO DATA';
+      this.gridOptions.context.pattern4Color = '#000000';
+      this.gridOptions.context.pattern4List = [];
+    } else if (pattern == 5) {
+      this.pattern5 = '';
+      this.gridOptions.context.pattern5 = 'NO DATA';
+      this.gridOptions.context.pattern5Color = '#000000';
+      this.gridOptions.context.pattern5List = [];
+    }
+    this.gridOptions.api.refreshView();
+  }
+
   clearPatterns() {
     this.pattern1 = '';
     this.pattern2 = '';
@@ -145,6 +184,12 @@ export class GridComponent {
     this.gridOptions.context.pattern3Color = '#000000';
     this.gridOptions.context.pattern4Color = '#000000';
     this.gridOptions.context.pattern5Color = '#000000';
+    this.gridOptions.context.pattern1List = [];
+    this.gridOptions.context.pattern2List = [];
+    this.gridOptions.context.pattern3List = [];
+    this.gridOptions.context.pattern4List = [];
+    this.gridOptions.context.pattern5List = [];
+    this.posActual = -1;
     this.gridOptions.api.deselectAll();
     this.gridOptions.api.refreshView();
   }
