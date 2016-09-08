@@ -28,6 +28,8 @@
       </form>
     </div>
     <div>
+      <div *ngIf="waiting" class="loader">
+      </div>
       <div *ngIf="showGrid">
         <ag-grid-ng2 style="width: 1300px; height: 300px;" class="ag-fresh resizable"
 

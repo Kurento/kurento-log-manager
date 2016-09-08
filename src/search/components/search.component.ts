@@ -42,7 +42,7 @@ export class SearchComponent {
     // we pass an empty gridOptions in, so we can grab the api out
     this.gridOptions = <GridOptions>{};
     this.createColumnDefs();
-    this.showGrid = true;
+    this.showGrid = false;
   }
 
   private defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
@@ -55,6 +55,7 @@ export class SearchComponent {
   private rowData:any[] = [];
   private columnDefs:any[];
   private rowCount:string;
+  private waiting:boolean = false;
 
   testType:boolean = false;
   clusterType:boolean = true;
@@ -69,6 +70,7 @@ export class SearchComponent {
   hosts:string;
   message:string;
   thread:string;
+
 
   private processCommaSeparatedValue(value:string) {
     if (value === undefined) {
@@ -173,6 +175,8 @@ export class SearchComponent {
   search(from:string, to:string, valueToSearch:string, append:boolean = false) {
     console.log("Searching:", from, to, valueToSearch);
 
+    this.showGrid = false;
+    this.waiting = true;
     this.rowData = [];
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
@@ -288,6 +292,8 @@ export class SearchComponent {
     this.http.request(new Request(requestoptions))
       .subscribe((res:Response) => {
 
+        this.showGrid = true;
+        this.waiting = false;
         let data = res.json()
         console.log("Res:", res);
         console.log("Data:", data);
