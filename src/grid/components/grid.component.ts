@@ -612,10 +612,9 @@ export class GridComponent {
 
 
   private onCellClicked($event) {
-    console.log('onCellClicked: ' + $event.rowIndex + ' ' + $event.colDef.field);
-    let logEntry = this.rowData[$event.rowIndex];
-    //this.selectedLogEntry = JSON.stringify(logEntry, null, 2);
-    //this.selectedLogMessage = logEntry.message;
+    this.currentRowSelectected = $event.rowIndex;
+    this.gridOptions.api.selectIndex($event.rowIndex);
+    this.gridOptions.api.ensureIndexVisible($event.rowIndex);
   }
 
   private onCellValueChanged($event) {
