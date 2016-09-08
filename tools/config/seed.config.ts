@@ -2,111 +2,116 @@ import {argv} from 'yargs';
 import {join} from 'path';
 import {InjectableDependency, Environments} from './seed.config.interfaces';
 
-export const ENVIRONMENTS: Environments = {
+export const ENVIRONMENTS:Environments = {
   DEVELOPMENT: 'dev',
   PRODUCTION: 'prod'
 };
 
 
 export class SeedConfig {
-  PORT                 = argv['port']                        || 5555;
-  PROJECT_ROOT         = join(__dirname, '../..');
-  ENV                  = getEnvironment();
-  DEBUG                = argv['debug']                       || false;
-  DOCS_PORT            = argv['docs-port']                   || 4003;
-  COVERAGE_PORT        = argv['coverage-port']               || 4004;
-  APP_BASE             = argv['base']                        || '/';
+  PORT = argv['port'] || 5555;
+  PROJECT_ROOT = join(__dirname, '../..');
+  ENV = getEnvironment();
+  DEBUG = argv['debug'] || false;
+  DOCS_PORT = argv['docs-port'] || 4003;
+  COVERAGE_PORT = argv['coverage-port'] || 4004;
+  APP_BASE = argv['base'] || '/';
 
-  ENABLE_HOT_LOADING   = argv['hot-loader'];
-  HOT_LOADER_PORT      = 5578;
+  ENABLE_HOT_LOADING = argv['hot-loader'];
+  HOT_LOADER_PORT = 5578;
 
-  BOOTSTRAP_MODULE     = this.ENABLE_HOT_LOADING ? 'hot_loader_main' : 'main';
+  BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ? 'hot_loader_main' : 'main';
 
-  APP_TITLE            = 'Kurento Log Manager';
+  APP_TITLE = 'Kurento Log Manager';
 
-  APP_SRC              = 'src';
-  ASSETS_SRC           = `${this.APP_SRC}/assets`;
+  APP_SRC = 'src';
+  ASSETS_SRC = `${this.APP_SRC}/assets`;
 
-  TOOLS_DIR            = 'tools';
-  SEED_TASKS_DIR       = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'seed');
-  DOCS_DEST            = 'docs';
-  DIST_DIR             = 'dist';
-  DEV_DEST             = `${this.DIST_DIR}/dev`;
-  PROD_DEST            = `${this.DIST_DIR}/prod`;
-  TMP_DIR              = `${this.DIST_DIR}/tmp`;
-  APP_DEST             = `${this.DIST_DIR}/${this.ENV}`;
-  CSS_DEST             = `${this.APP_DEST}/css`;
-  JS_DEST              = `${this.APP_DEST}/js`;
-  APP_ROOT             = this.ENV === 'dev' ? `${this.APP_BASE}${this.APP_DEST}/` : `${this.APP_BASE}`;
-  VERSION              = appVersion();
+  TOOLS_DIR = 'tools';
+  SEED_TASKS_DIR = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'seed');
+  DOCS_DEST = 'docs';
+  DIST_DIR = 'dist';
+  DEV_DEST = `${this.DIST_DIR}/dev`;
+  PROD_DEST = `${this.DIST_DIR}/prod`;
+  TMP_DIR = `${this.DIST_DIR}/tmp`;
+  APP_DEST = `${this.DIST_DIR}/${this.ENV}`;
+  CSS_DEST = `${this.APP_DEST}/css`;
+  JS_DEST = `${this.APP_DEST}/js`;
+  APP_ROOT = this.ENV === 'dev' ? `${this.APP_BASE}${this.APP_DEST}/` : `${this.APP_BASE}`;
+  VERSION = appVersion();
 
-  CSS_PROD_BUNDLE      = 'all.css';
+  CSS_PROD_BUNDLE = 'all.css';
   JS_PROD_SHIMS_BUNDLE = 'shims.js';
-  JS_PROD_APP_BUNDLE   = 'app.js';
+  JS_PROD_APP_BUNDLE = 'app.js';
 
-  VERSION_NPM          = '2.14.2';
-  VERSION_NODE         = '4.0.0';
+  VERSION_NPM = '2.14.2';
+  VERSION_NODE = '4.0.0';
 
-  CODELYZER_RULES      = customRules();
+  CODELYZER_RULES = customRules();
 
-  NPM_DEPENDENCIES: InjectableDependency[] = [
-    { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'reflect-metadata/Reflect.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'es6-shim/es6-shim.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'systemjs/dist/system.src.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
-    { src: 'rxjs/bundles/Rx.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'angular2/bundles/angular2.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'angular2/bundles/router.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
-    { src: 'angular2/bundles/http.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT }
+  NPM_DEPENDENCIES:InjectableDependency[] = [
+    {src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'reflect-metadata/Reflect.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'es6-shim/es6-shim.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'systemjs/dist/system.src.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims'},
+    {src: 'rxjs/bundles/Rx.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'angular2/bundles/angular2.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'angular2/bundles/router.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'angular2/bundles/http.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'ag-grid/dist/ag-grid.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT},
+    {src: 'ag-grid-enterprise/dist/ag-grid-enterprise.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT}
   ];
 
   // Declare local files that needs to be injected
-  APP_ASSETS: InjectableDependency[] = [
-    { src: `${this.ASSETS_SRC}/main.css`, inject: true, vendor: false }
+  APP_ASSETS:InjectableDependency[] = [
+    {src: `${this.ASSETS_SRC}/main.css`, inject: true, vendor: false}
   ];
 
 
-  get PROD_DEPENDENCIES(): InjectableDependency[] {
+  get PROD_DEPENDENCIES():InjectableDependency[] {
     console.warn('The property "PROD_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     return normalizeDependencies(this.NPM_DEPENDENCIES.filter(filterDependency.bind(null, ENVIRONMENTS.PRODUCTION)))
       .concat(this.APP_ASSETS.filter(filterDependency.bind(null, ENVIRONMENTS.PRODUCTION)));
   }
 
-  get DEV_DEPENDENCIES(): InjectableDependency[] {
+  get DEV_DEPENDENCIES():InjectableDependency[] {
     console.warn('The property "DEV_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     return normalizeDependencies(this.NPM_DEPENDENCIES.filter(filterDependency.bind(null, ENVIRONMENTS.DEVELOPMENT)))
       .concat(this.APP_ASSETS.filter(filterDependency.bind(null, ENVIRONMENTS.DEVELOPMENT)));
   }
 
-  set DEV_DEPENDENCIES(val: InjectableDependency[]) {
+  set DEV_DEPENDENCIES(val:InjectableDependency[]) {
     console.warn('The property "DEV_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
   }
 
-  set PROD_DEPENDENCIES(val: InjectableDependency[]) {
+  set PROD_DEPENDENCIES(val:InjectableDependency[]) {
     console.warn('The property "PROD_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
   }
 
-  get DEV_NPM_DEPENDENCIES(): InjectableDependency[] {
+  get DEV_NPM_DEPENDENCIES():InjectableDependency[] {
     console.warn('The property "DEV_NPM_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     return normalizeDependencies(this.NPM_DEPENDENCIES.filter(filterDependency.bind(null, ENVIRONMENTS.DEVELOPMENT)));
   }
-  get PROD_NPM_DEPENDENCIES(): InjectableDependency[] {
+
+  get PROD_NPM_DEPENDENCIES():InjectableDependency[] {
     console.warn('The property "PROD_NPM_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     return normalizeDependencies(this.NPM_DEPENDENCIES.filter(filterDependency.bind(null, ENVIRONMENTS.PRODUCTION)));
   }
-  set DEV_NPM_DEPENDENCIES(value: InjectableDependency[]) {
+
+  set DEV_NPM_DEPENDENCIES(value:InjectableDependency[]) {
     console.warn('The property "DEV_NPM_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     const notDev = this.NPM_DEPENDENCIES.filter(d => !filterDependency(ENVIRONMENTS.DEVELOPMENT, d));
     this.NPM_DEPENDENCIES = notDev.concat(value);
   }
-  set PROD_NPM_DEPENDENCIES(value: InjectableDependency[]) {
+
+  set PROD_NPM_DEPENDENCIES(value:InjectableDependency[]) {
     console.warn('The property "PROD_NPM_DEPENDENCIES" is deprecated. Consider using "DEPENDENCIES" instead.');
     const notProd = this.NPM_DEPENDENCIES.filter(d => !filterDependency(ENVIRONMENTS.PRODUCTION, d));
     this.NPM_DEPENDENCIES = notProd.concat(value);
   }
 
-  get DEPENDENCIES(): InjectableDependency[] {
+  get DEPENDENCIES():InjectableDependency[] {
     return normalizeDependencies(this.NPM_DEPENDENCIES.filter(filterDependency.bind(null, this.ENV)))
       .concat(this.APP_ASSETS.filter(filterDependency.bind(null, this.ENV)));
   }
@@ -123,8 +128,8 @@ export class SeedConfig {
       '*': `${this.APP_BASE}node_modules/*`
     },
     packages: {
-      angular2: { defaultExtension: false },
-      rxjs: { defaultExtension: false }
+      angular2: {defaultExtension: false},
+      rxjs: {defaultExtension: false}
     }
   };
 
@@ -152,6 +157,7 @@ export class SeedConfig {
     'android >= 4.4',
     'bb >= 10'
   ];
+
   getEnvDependencies() {
     console.warn('The "getEnvDependencies" method is deprecated. Consider using "DEPENDENCIES" instead.');
     if (this.ENV === 'prod') {
@@ -163,12 +169,10 @@ export class SeedConfig {
 }
 
 
-
-
 // --------------
 // Utils.
 
-function filterDependency(env: string, d: InjectableDependency): boolean {
+function filterDependency(env:string, d:InjectableDependency):boolean {
   if (!d.env) {
     d.env = Object.keys(ENVIRONMENTS).map(k => ENVIRONMENTS[k]);
   }
@@ -178,19 +182,19 @@ function filterDependency(env: string, d: InjectableDependency): boolean {
   return d.env.indexOf(env) >= 0;
 }
 
-export function normalizeDependencies(deps: InjectableDependency[]) {
+export function normalizeDependencies(deps:InjectableDependency[]) {
   deps
     .filter((d:InjectableDependency) => !/\*/.test(d.src)) // Skip globs
     .forEach((d:InjectableDependency) => d.src = require.resolve(d.src));
   return deps;
 }
 
-function appVersion(): number|string {
+function appVersion():number|string {
   var pkg = require('../../package.json');
   return pkg.version;
 }
 
-function customRules(): string[] {
+function customRules():string[] {
   var lintConf = require('../../tslint.json');
   return lintConf.rulesDirectory;
 }
