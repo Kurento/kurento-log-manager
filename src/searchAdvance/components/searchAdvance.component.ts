@@ -194,7 +194,7 @@ export class SearchAdvanceComponent {
   hosts:string;
   message:string;
   thread:string;
-  maxResults:number = 50;
+  maxResults:number = 500;
   urlCopied:string;
   showLoadMore:boolean = false;
   showPauseTail:boolean = false;
