@@ -1,20 +1,3 @@
-/*
- * (C) Copyright 2016 Kurento (http://kurento.org/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 import {Component} from 'angular2/core';
 import {Http, Response, HTTP_PROVIDERS, Headers, RequestOptions, RequestMethod, Request} from 'angular2/http'
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
@@ -25,14 +8,14 @@ import {GridComponent} from './../../grid/components/grid.component'
 import 'ag-grid-enterprise/main';
 
 @Component({
-  selector: 'sd-search',
-  templateUrl: './search/components/search.component.html',
-  styleUrls: ['./search/components/search.component.css'],
+  selector: 'sd-search-advance',
+  templateUrl: './searchAdvance/components/searchAdvance.component.html',
+  styleUrls: ['./searchAdvance/components/searchAdvance.component.css'],
   providers: [HTTP_PROVIDERS, ElasticSearchService],
   directives: [FORM_DIRECTIVES, CORE_DIRECTIVES, GridComponent]
 })
 
-export class SearchComponent {
+export class SearchAdvanceComponent {
   constructor(private _elasticSearchService:ElasticSearchService) {
     this.showGrid = false;
   }
@@ -46,7 +29,7 @@ export class SearchComponent {
   private showGrid:boolean;
   private waiting:boolean = false;
 
-  testType:boolean = true;
+  testType:boolean = false;
   clusterType:boolean = true;
   kmsType:boolean = true;
 
@@ -77,12 +60,12 @@ export class SearchComponent {
     let filter:any = {}
     if (values.length > 1) {
       filter[field] = values;
-      queryes.filtered.filter.bool.should.push({
+      queryes.filtered.filter.bool.must.push({
         "terms": filter
       })
     } else if (values.length == 1) {
       filter[field] = values[0];
-      queryes.filtered.filter.bool.should.push({
+      queryes.filtered.filter.bool.must.push({
         "match": filter
       })
     }
@@ -116,10 +99,6 @@ export class SearchComponent {
 
     if (this.kmsType) {
       types.push('kms');
-    }
-
-    if (this.testType) {
-      types.push('test');
     }
 
     let logLevels = [];
@@ -156,7 +135,7 @@ export class SearchComponent {
       "filtered": {
         "filter": {
           "bool": {
-            "should": [
+            "must": [
               {
                 "range": {
                   "@timestamp": {
@@ -174,17 +153,17 @@ export class SearchComponent {
     this.addTermFilter(queryes, 'loglevel', logLevels);
     this.addTermFilter(queryes, 'type', types);
 
-    /* let loggers = this.processCommaSeparatedValue(valueToSearch);
+    let loggers = this.processCommaSeparatedValue(valueToSearch);
      this.addTermFilter(queryes, 'loggername', loggers);
 
      let hosts = this.processCommaSeparatedValue(valueToSearch);
-     this.addTermFilter(queryes, 'host', hosts);*/
+     this.addTermFilter(queryes, 'host', hosts);
 
     let message = this.processCommaSeparatedValue(valueToSearch);
     this.addTermFilter(queryes, 'message', message);
 
-    /*    let thread = this.processCommaSeparatedValue(valueToSearch);
-     this.addTermFilter(queryes, 'threadid', thread);*/
+      let thread = this.processCommaSeparatedValue(valueToSearch);
+     this.addTermFilter(queryes, 'threadid', thread);
 
     console.log("Query: ", queryes);
     console.log('-----------------------------------------------------------------');
@@ -202,17 +181,25 @@ export class SearchComponent {
     let maxResults = 50;
 
     this._elasticSearchService.internalSearch(url, esquery, maxResults, append).subscribe(
-      data => {
-        console.log("Data:", data);
-        this.rowData = data;
-        this.showGrid = true;
-        this.waiting = false;
-      },
-      err => console.log('Error', err)
-    )
+     data => {
+     console.log("Data:", data);
+     this.rowData = data;
+     this.showGrid = true;
+     this.waiting = false;
+     },
+     err => console.log('Error', err)
+     )
     /*this.showGrid = true;
     this.waiting = false;
     this.rowData = [{
+      "host": "kms-room-ip-10-0-20-47",
+      "level": "INFO",
+      "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",
+      "message": "Published load metric 0.0 to AWS CloudWathService",
+      "thread": "Timer-0",
+      "time": "2016-04-18T04:52:15.595Z",
+      "type": "cluster"
+    },{
       "host": "kms-room-ip-10-0-20-47",
       "level": "INFO",
       "logger": "org.kurento.kmscluster.controller.autoscaling.AWSAutoscalingService",

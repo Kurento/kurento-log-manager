@@ -21,16 +21,16 @@ import {NavbarComponent} from './navbar.component';
 import {ToolbarComponent} from './toolbar.component';
 import {AboutComponent} from '../../about/components/about.component';
 import {SearchComponent} from '../../search/components/search.component';
-import {NameListService} from '../../shared/services/name-list.service';
+import {SearchAdvanceComponent} from '../../searchAdvance/components/searchAdvance.component';
 
 @Component({
   selector: 'sd-app',
-  viewProviders: [NameListService],
   templateUrl: './app/components/app.component.html',
-  directives: [ROUTER_DIRECTIVES, NavbarComponent, ToolbarComponent, SearchComponent]
+  directives: [ROUTER_DIRECTIVES, NavbarComponent, ToolbarComponent, SearchComponent, SearchAdvanceComponent]
 })
 @RouteConfig([
   {path: '/', name: 'Search', component: SearchComponent},
+  {path: '/advance', name: 'SearchAdvance', component: SearchAdvanceComponent},
   {path: '/about', name: 'About', component: AboutComponent}
 ])
 export class AppComponent {

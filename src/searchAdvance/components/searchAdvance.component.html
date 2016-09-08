@@ -1,0 +1,82 @@
+<div class="main">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+
+        <form class="form-inline">
+          <div class="col-md-14">
+            <label>Range</label>
+            <div class="form-group form-group-sm ">
+              From
+              <input #from type="datetime-local" class="form-control input-sm" id="form" placeholder="Yesterday"
+                     novalidate="true"
+                     [value]="getDefaultFromValue()"
+                     step=1>
+            </div>
+            <div class="form-group form-group-sm">
+              To
+              <input #to type="datetime-local" class="form-control input-sm" id="to" placeholder="Now" novalidate="true"
+                     [value]="getDefaultToValue()" step=1>
+            </div>
+            <div class="form-group form-group-sm">
+              Max log entries
+              <input #maxResults type="number" class="form-control input-sm" id="max_results" value="50">
+            </div>
+          </div>
+
+          <div class="col-md-14">
+            <label>Fields</label>
+            <div class="form-group form-group-sm">
+              Message
+              <input #messageCmp class="form-control input-sm" id="message" value="" [(ngModel)]="message"
+                     placeholder="Search on message">
+            </div>
+            <div class="form-group form-group-sm">
+              Loggers
+              <input #loggersCmp class="form-control input-sm" id="loggers" value="" [(ngModel)]="loggers"
+                     placeholder="Search on loggers">
+            </div>
+            <div class="form-group form-group-sm">
+              Hosts
+              <input #hostsCmp class="form-control input-sm" id="hosts" value="" [(ngModel)]="hosts"
+                     placeholder="Search on hosts">
+            </div>
+            <div class="form-group form-group-sm">
+              Thread
+              <input class="form-control input-sm" id="thread" value="" [(ngModel)]="thread"
+                     placeholder="Search on thread">
+            </div>
+          </div>
+
+          <div class="col-md-14">
+            <label>Type</label>
+            <input #test type="checkbox" class="form-control input-sm" (change)="testType = test.checked"> test
+            <input #cluster type="checkbox" class="form-control input-sm" (change)="clusterType = cluster.checked"
+                   checked> cluster
+            <input #kms type="checkbox" class="form-control input-sm" (change)="kmsType = kms.checked"> kms
+          </div>
+
+          <div class="col-md-14">
+            <label>Level</label>
+            <input #debug class="form-control input-sm" type="checkbox" (change)="debugLevel = debug.checked"
+                   checked> DEBUG
+            <input #info type="checkbox" class="form-control input-sm" (change)="infoLevel = info.checked" checked> INFO
+            <input #warn type="checkbox" class="form-control input-sm" (change)="warnLevel = warn.checked" checked> WARN
+            <input #error type="checkbox" class="form-control input-sm" (change)="errorLevel = error.checked" checked>
+            ERROR
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              Tail<input #tailCheckbox type="checkbox" class="form-control input-sm"
+                         (change)="tailSearch(tailCheckbox.checked)">
+            </div>
+          </div>
+          <button (click)="search(from.value, to.value, maxResults.value, false)" class="btn btn-default">Search
+          </button>
+        </form>
+      </div>
+      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
+    </div>
+  </div>
+</div>

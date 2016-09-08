@@ -1,0 +1,63 @@
+<div class="container-fluid">
+  <div class="gridDiv">
+    <div *ngIf="waiting" class="loader">
+    </div>
+    <div *ngIf="showGrid">
+      <div>
+        <div class="form-group">
+          <label>Log entries {{rowCount}} </label>
+          <input (keyup)="onQuickFilterChanged($event)" class="form-control" type="text" id="quickFilterInput"
+                 placeholder="Type text to filter..."/>
+        </div>
+      </div>
+      <div class="toolbar">
+        Show Tool Panel
+        <input type="checkbox" style="margin-top:2px" (change)="showToolPanel=$event.target.checked"/>
+      </div>
+      <ag-grid-ng2 style="width: 100%; height: 100%;" class="ag-fresh resizable"
+
+                   [gridOptions]="gridOptions"
+                   [columnDefs]="columnDefs"
+                   [showToolPanel]="showToolPanel"
+                   [rowData]="rowData"
+
+                   enableColResize
+                   enableSorting
+                   enableFilter
+                   groupHeaders
+                   suppressRowClickSelection
+                   toolPanelSuppressGroups
+                   toolPanelSuppressValues
+                   debug
+                   rowHeight="22"
+                   rowSelection="multiple"
+
+                   (modelUpdated)="onModelUpdated()"
+                   (cellClicked)="onCellClicked($event)"
+                   (cellDoubleClicked)="onCellDoubleClicked($event)"
+                   (cellContextMenu)="onCellContextMenu($event)"
+                   (cellValueChanged)="onCellValueChanged($event)"
+                   (cellFocused)="onCellFocused($event)"
+                   (rowSelected)="onRowSelected($event)"
+                   (selectionChanged)="onSelectionChanged()"
+                   (beforeFilterChanged)="onBeforeFilterChanged()"
+                   (afterFilterChanged)="onAfterFilterChanged()"
+                   (filterModified)="onFilterModified()"
+                   (beforeSortChanged)="onBeforeSortChanged()"
+                   (afterSortChanged)="onAfterSortChanged()"
+                   (virtualRowRemoved)="onVirtualRowRemoved($event)"
+                   (rowClicked)="onRowClicked($event)"
+                   (ready)="onReady($event)"
+
+                   (columnEverythingChanged)="onColumnEvent($event)"
+                   (columnRowGroupChanged)="onColumnEvent($event)"
+                   (columnValueChanged)="onColumnEvent($event)"
+                   (columnMoved)="onColumnEvent($event)"
+                   (columnVisible)="onColumnEvent($event)"
+                   (columnGroupOpened)="onColumnEvent($event)"
+                   (columnResized)="onColumnEvent($event)"
+                   (columnPinnedCountChanged)="onColumnEvent($event)">
+      </ag-grid-ng2>
+    </div>
+  </div>
+</div>

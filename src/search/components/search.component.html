@@ -1,88 +1,42 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Simple search</h3>
-      <form class="form-inline">
-
-        <div class="form-group">
-          <label for="from">From</label>
-          <input #from type="datetime-local" class="form-control" id="form" placeholder="Yesterday" novalidate="true"
-                 [value]="getDefaultFromValue()"
-                 step=1>
-        </div>
-
-        <div class="form-group">
-          <label for="to">To</label>
-          <input #to type="datetime-local" class="form-control" id="to" placeholder="Now" novalidate="true"
-                 [value]="getDefaultToValue()" step=1>
-        </div>
-
-        <div>
+<div class="main">
+  <div class="container-fluid main">
+    <div class="row">
+      <div class="col-md-12">
+        <form class="form-inline">
+          <label>Range</label>
           <div class="form-group">
-            <label for="simpleSearch">Search in all fields</label>
-            <input #simpleSearch class="form-control" id="simpleSearch" value="" placeholder="Search in all fields">
+            From
+            <input #from type="datetime-local" class="form-control input-sm" id="form" placeholder="Yesterday"
+                   novalidate="true"
+                   [value]="getDefaultFromValue()"
+                   step=1>
           </div>
-        </div>
 
-        <button (click)="search(from.value, to.value, simpleSearch.value)" class="btn btn-default">Search</button>
-      </form>
-    </div>
-    <div class="gridDiv">
-      <div *ngIf="waiting" class="loader">
-      </div>
-      <div *ngIf="showGrid">
-        <div>
           <div class="form-group">
-            <label>Log entries {{rowCount}} </label>
-            <input (keyup)="onQuickFilterChanged($event)" class="form-control" type="text" id="quickFilterInput"
-                   placeholder="Type text to filter..."/>
+            To
+            <input #to type="datetime-local" class="form-control input-sm" id="to" placeholder="Now" novalidate="true"
+                   [value]="getDefaultToValue()" step=1>
           </div>
-        </div>
-        <ag-grid-ng2 style="width: 1300px; height: 300px;" class="ag-fresh resizable"
 
-                     [gridOptions]="gridOptions"
-                     [columnDefs]="columnDefs"
-                     [showToolPanel]="showToolPanel"
-                     [rowData]="rowData"
+          <div>
+            <label>Fields</label>
+            <div class="form-group">
+              Search in all fields
+              <input #simpleSearch class="form-control input-sm" id="simpleSearch" value=""
+                     placeholder="Search in all fields">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              Tail<input #tailCheckbox type="checkbox" class="form-control input-sm"
+                         (change)="tailSearch(tailCheckbox.checked)">
+            </div>
+          </div>
 
-                     enableColResize
-                     enableSorting
-                     enableFilter
-                     groupHeaders
-                     suppressRowClickSelection
-                     toolPanelSuppressGroups
-                     toolPanelSuppressValues
-                     debug
-                     rowHeight="22"
-                     rowSelection="multiple"
-
-                     (modelUpdated)="onModelUpdated()"
-                     (cellClicked)="onCellClicked($event)"
-                     (cellDoubleClicked)="onCellDoubleClicked($event)"
-                     (cellContextMenu)="onCellContextMenu($event)"
-                     (cellValueChanged)="onCellValueChanged($event)"
-                     (cellFocused)="onCellFocused($event)"
-                     (rowSelected)="onRowSelected($event)"
-                     (selectionChanged)="onSelectionChanged()"
-                     (beforeFilterChanged)="onBeforeFilterChanged()"
-                     (afterFilterChanged)="onAfterFilterChanged()"
-                     (filterModified)="onFilterModified()"
-                     (beforeSortChanged)="onBeforeSortChanged()"
-                     (afterSortChanged)="onAfterSortChanged()"
-                     (virtualRowRemoved)="onVirtualRowRemoved($event)"
-                     (rowClicked)="onRowClicked($event)"
-                     (ready)="onReady($event)"
-
-                     (columnEverythingChanged)="onColumnEvent($event)"
-                     (columnRowGroupChanged)="onColumnEvent($event)"
-                     (columnValueChanged)="onColumnEvent($event)"
-                     (columnMoved)="onColumnEvent($event)"
-                     (columnVisible)="onColumnEvent($event)"
-                     (columnGroupOpened)="onColumnEvent($event)"
-                     (columnResized)="onColumnEvent($event)"
-                     (columnPinnedCountChanged)="onColumnEvent($event)">
-        </ag-grid-ng2>
+          <button (click)="search(from.value, to.value, simpleSearch.value)" class="btn btn-default">Search</button>
+        </form>
       </div>
+      <sd-grid [rowData]="rowData" [waiting]="waiting" [showGrid]="showGrid"></sd-grid>
     </div>
   </div>
 </div>

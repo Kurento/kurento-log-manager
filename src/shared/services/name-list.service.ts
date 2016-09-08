@@ -12,4 +12,5 @@ export class NameListService {
   add(value: string): void {
     this.names.push(value);
   }
+  
 }
