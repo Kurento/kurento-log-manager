@@ -15,25 +15,19 @@
  *
  */
 
-:host {
-  border-color: #e1e1e1;
-  border-style: solid;
-  border-width: 0 0 1px;
-  display: block;
-  height: 48px;
-  padding: 0 16px;
+export function toInputLiteral(date: Date) {
+  return date.getUTCFullYear() + '-' +
+    pad(date.getUTCMonth()+1, 2) + '-' +
+    pad(date.getUTCDate(), 2) + 'T' +
+    pad(date.getHours(), 2) + ':' +
+    pad(date.getMinutes(), 2) + ':' +
+    pad(date.getSeconds(), 2);
 }
 
-nav a {
-  color: #8f8f8f;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 48px;
-  margin-right: 20px;
-  text-decoration: none;
-  vertical-align: middle;
-}
-
-nav a.router-link-active {
-  color: #106cc8;
-}
+function pad(n, width, z?) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}/**
+ * Created by rbenitez on 14/4/16.
+ */
