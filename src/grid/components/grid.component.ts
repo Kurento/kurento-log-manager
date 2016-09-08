@@ -463,19 +463,19 @@ export class GridComponent {
     let cellRendererLevel = function (params) {
       let css:string;
       let _class:string;
-      if (params.data.level === 'ERROR') {
+      if (params.data.level.toUpperCase() === 'ERROR') {
         _class = 'label-danger';
-      } else if (params.data.level === 'WARN') {
+      } else if (params.data.level.toUpperCase() === 'WARN') {
         _class = 'label-warning';
-      } else if (params.data.level === 'INFO') {
+      } else if (params.data.level.toUpperCase() === 'INFO') {
         _class = 'label-info';
-      } else if (params.data.level === 'DEBUG') {
+      } else if (params.data.level.toUpperCase() === 'DEBUG') {
         _class = 'label-success';
       } else {
         _class = '';
       }
 
-      css = '<span class="label ' + _class + '"> ' + (params.data.level == undefined ? '' : params.data.level) + '</span>';
+      css = '<span class="label ' + _class + '"> ' + (params.data.level == undefined ? '' : params.data.level.toUpperCase()) + '</span>';
       return css;
     }
 
