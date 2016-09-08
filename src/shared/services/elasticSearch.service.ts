@@ -43,81 +43,16 @@ export class ElasticSearchService {
   internalSearch(url:string, query:any, maxResults:number, append:boolean = false) {
     console.log("URL:", url, "Query:", query)
 
-    if (!append) {
-      this.rowData = [];
-    }
-
-    if (append) {
-      if (!this.noMore) {
-        if (this.rowData.length > 0) {
-          url = "http://localhost:9200/_search/scroll"
-          query = {scroll: '1m', scroll_id: this._scroll_id}
-          }
-      } else {
-          query.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
-      }
-    }
     let requestoptions = new RequestOptions({
       method: RequestMethod.Post,
       url,
       body: JSON.stringify(query)
     })
 
-    let body2 = JSON.stringify(query)
-
-    console.log("Body2:", body2)
-
     return this.http.request(new Request(requestoptions))
       .map((res:Response) => {
         let data = res.json()
-        console.log("Res:", res);
-        console.log("Data:", data);
-
-        this._scroll_id = data._scroll_id;
-
-        if (data.hits !== undefined && data.hits.hits.length === 0 && this.rowData.length == 0) {
-          console.log("Returned response without results. Aborting");
-          return;
-        }
-
-        if (data.hits) {
-          console.log("Data hits size:", data.hits.hits.length)
-          let prevSize = this.rowData.length;
-          if (data.hits.hits.length === 0)
-            this.noMore = true;
-          else
-            this.noMore = false;
-
-          for (let logEntry of data.hits.hits) {
-            let type = logEntry._type;
-            let time = logEntry._source['@timestamp'];
-            let message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
-            let level = logEntry._source.loglevel;
-            let thread = logEntry._source.threadid;
-            let logger = logEntry._source.loggername;
-            let host = logEntry._source.host;
-
-            let logValue = {type, time, message, level, thread, logger, host};
-
-            if (append) {
-              if (prevSize == 0) {
-                this.rowData.push(logValue);
-              } else {
-                if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
-                  this.rowData = this.rowData.slice();
-                  return this.rowData;
-                }
-                this.rowData.push(logValue);
-              }
-            } else {
-              this.rowData.push(logValue);
-            }
-          }
-
-          return this.rowData;
-        }
-        return this.rowData;
-
+        return data;
       }, (err:Response) => {
         console.error("Error:", err);
       });

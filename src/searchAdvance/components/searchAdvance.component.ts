@@ -34,6 +34,9 @@ import 'ag-grid-enterprise/main';
 })
 
 export class SearchAdvanceComponent {
+  private _scroll_id;
+  private noMore = false;
+
   constructor(private _elasticSearchService:ElasticSearchService, @Inject(RouteParams) params:RouteParams) {
     this.showGrid = false;
     this.showError = false;
@@ -166,7 +169,7 @@ export class SearchAdvanceComponent {
   private showError:boolean;
   private waiting:boolean = false;
 
-  errorMsg: string = "";
+  errorMsg:string = "";
 
   testType:boolean = true;
   clusterType:boolean = true;
@@ -325,13 +328,13 @@ export class SearchAdvanceComponent {
     return timeDifferenceInDays;
   }
 
-  tailSearch(tail: boolean) {
+  tailSearch(tail:boolean) {
     this.useTail = tail;
     if (tail) {
       this.tailInterval = setInterval(() => {
         // In this case, to will be 'now'
         this.search(dateToInputLiteral(this.defaultFrom), undefined, true);
-      }, 5000);
+      }, 1000);
     } else {
       clearInterval(this.tailInterval);
     }
@@ -343,8 +346,8 @@ export class SearchAdvanceComponent {
     if (!append) {
       this.showGrid = false;
       this.waiting = true;
+      this.rowData = [];
     }
-    this.rowData = [];
     this.showError = false;
     // All variables (boolean) have a default value as true
     // The search will be on loggers + hosts + message + thread
@@ -394,10 +397,12 @@ export class SearchAdvanceComponent {
     queryfrom = from;
     if (!this.useTail) {
       queryto = to;
-    }else {
+      sort = 'asc';
+    } else {
       queryto = 'now';
+      queryfrom = dateToInputLiteral(new Date(new Date().valueOf()));
+      sort = 'asc';
     }
-    sort = 'asc';
 
     let queryes:any = {
       "filtered": {
@@ -422,25 +427,26 @@ export class SearchAdvanceComponent {
 
     let index_:string = "";
 
-    if (this.indexName == undefined || this.indexName == "") {
-      let today = dateToInputLiteral(new Date(new Date().valueOf()));
-      let differenceFromAndToday = this.getDifferenceDates(from, today);
-      let differenceTodayAndTo = this.getDifferenceDates(today, to);
+    if (!this.useTail) {
+      if (this.indexName == undefined || this.indexName == "") {
+        let today = dateToInputLiteral(new Date(new Date().valueOf()));
+        let differenceFromAndToday = this.getDifferenceDates(from, today);
+        let differenceTodayAndTo = this.getDifferenceDates(today, to);
 
-      for (var i = differenceFromAndToday; i >= differenceTodayAndTo; i--) {
-        if (i == 0) {
-          index_ += '<kurento-' + this.clusterName + '-{now%2Fd}>';
-        } else {
-          index_ += '<kurento-' + this.clusterName + '-{now%2Fd-' + i + 'd}>';
-          if (i != differenceTodayAndTo) {
-            index_ += ',';
+        for (var i = differenceFromAndToday; i >= differenceTodayAndTo; i--) {
+          if (i == 0) {
+            index_ += '<kurento-' + this.clusterName + '-{now%2Fd}>';
+          } else {
+            index_ += '<kurento-' + this.clusterName + '-{now%2Fd-' + i + 'd}>';
+            if (i != differenceTodayAndTo) {
+              index_ += ',';
+            }
           }
         }
+      } else {
+        index_ = this.indexName;
       }
-    } else {
-      index_ = this.indexName;
     }
-
     let url = this.urlElastic + index_ + '/_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type';
 
     console.log("URL:", url);
@@ -499,11 +505,70 @@ export class SearchAdvanceComponent {
       _source: ['host', 'threadid', 'loggername', 'message', 'loglevel', 'logmessage', '@timestamp']
     };
 
+    if (!append) {
+      this.rowData = [];
+    }
+    if (append) {
+      if (!this.noMore) {
+        if (this.rowData.length > 0) {
+          url = this.urlElastic + "/_search/scroll"
+          esquery = {scroll: '1m', scroll_id: this._scroll_id};
+        }
+      } else {
+        esquery.query.filtered.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
+      }
+    }
 
     this._elasticSearchService.internalSearch(url, esquery, this.maxResults, append).subscribe(
       data => {
+
         console.log("Data:", data);
-        this.rowData = data;
+
+        this._scroll_id = data._scroll_id;
+
+        if (data.hits !== undefined && data.hits.hits.length === 0 && this.rowData.length == 0) {
+          console.log("Returned response without results. Aborting");
+          return;
+        }
+
+        if (data.hits) {
+          console.log("Data hits size:", data.hits.hits.length)
+          let prevSize = this.rowData.length;
+          if (data.hits.hits.length === 0)
+            this.noMore = true;
+          else
+            this.noMore = false;
+
+          for (let logEntry of data.hits.hits) {
+            let type = logEntry._type;
+            let time = logEntry._source['@timestamp'];
+            let message = type == 'cluster' || type == 'kms' ? logEntry._source.logmessage : logEntry._source.message;
+            let level = logEntry._source.loglevel;
+            let thread = logEntry._source.threadid;
+            let logger = logEntry._source.loggername;
+            let host = logEntry._source.host;
+
+            let logValue = {type, time, message, level, thread, logger, host};
+
+            if (append) {
+              if (prevSize == 0) {
+                this.rowData.push(logValue);
+              } else {
+                if (this.rowData[prevSize - 1].time === logValue.time && this.rowData[prevSize - 1].message === logValue.message) {
+                 // this.rowData = this.rowData.slice();
+                  continue
+                }
+                this.rowData.push(logValue);
+              }
+            } else {
+              this.rowData.push(logValue);
+            }
+          }
+          if (data.hits.hits.length > 0){
+            this.rowData = this.rowData.slice();
+          }
+        }
+
         this.showGrid = true;
         this.waiting = false;
         this.showLoadMore = true;
