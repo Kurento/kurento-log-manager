@@ -43,6 +43,27 @@ export class GridComponent {
   constructor(private _elasticSearchService:ElasticSearchService, private http:Http) {
     // we pass an empty gridOptions in, so we can grab the api out
     this.gridOptions = <GridOptions>{};
+    this.gridOptions = {
+      enableCellExpressions: true,
+      context: {
+        pattern1: 'NODATA',
+        pattern2: 'NODATA',
+        pattern3: 'NODATA',
+        pattern4: 'NODATA',
+        pattern5: 'NODATA',
+        pattern1Color: '',
+        pattern2Color: '',
+        pattern3Color: '',
+        pattern4Color: '',
+        pattern5Color: '',
+        pattern1List: [],
+        pattern2List: [],
+        pattern3List: [],
+        pattern4List: [],
+        pattern5List: []
+      }
+    };
+
     this.createColumnDefs();
   }
 
@@ -68,56 +89,371 @@ export class GridComponent {
   message:string;
   thread:string;
 
+  pattern1:string;
+  pattern2:string;
+  pattern3:string;
+  pattern4:string;
+  pattern5:string;
+
+  pattern1Pos:number = -1;
+  pattern2Pos:number = -1;
+  pattern3Pos:number = -1;
+  pattern4Pos:number = -1;
+  pattern5Pos:number = -1;
+
+  private posActual:number = -1;
+
+  private getNextPosition(element, array) {
+    console.log("element:", element, "Array:", array)
+    let i:number;
+    for (i = 0; i < array.length; i++) {
+      if (element < array[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private getPrevPosition(element, array) {
+    console.log("element:", element, "Array:", array)
+    let i:number;
+    for (i = array.length; i >= 0; i--) {
+      if (element > array[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private sorted(a, b) {
+    return a - b
+  }
+
+  clearPatterns() {
+    this.pattern1 = '';
+    this.pattern2 = '';
+    this.pattern3 = '';
+    this.pattern4 = '';
+    this.pattern5 = '';
+    this.gridOptions.context.pattern1 = 'NO DATA';
+    this.gridOptions.context.pattern2 = 'NO DATA';
+    this.gridOptions.context.pattern3 = 'NO DATA';
+    this.gridOptions.context.pattern4 = 'NO DATA';
+    this.gridOptions.context.pattern5 = 'NO DATA';
+    this.gridOptions.context.pattern1Color = '#000000';
+    this.gridOptions.context.pattern2Color = '#000000';
+    this.gridOptions.context.pattern3Color = '#000000';
+    this.gridOptions.context.pattern4Color = '#000000';
+    this.gridOptions.context.pattern5Color = '#000000';
+    this.gridOptions.api.deselectAll();
+    this.gridOptions.api.refreshView();
+  }
+
+  searchByPatterns(pattern1Color:string, pattern2Color:string, pattern3Color:string, pattern4Color:string, pattern5Color:string) {
+    this.gridOptions.context.pattern1 = this.pattern1;
+    this.gridOptions.context.pattern2 = this.pattern2;
+    this.gridOptions.context.pattern3 = this.pattern3;
+    this.gridOptions.context.pattern4 = this.pattern4;
+    this.gridOptions.context.pattern5 = this.pattern5;
+    this.gridOptions.context.pattern1Color = pattern1Color;
+    this.gridOptions.context.pattern2Color = pattern2Color;
+    this.gridOptions.context.pattern3Color = pattern3Color;
+    this.gridOptions.context.pattern4Color = pattern4Color;
+    this.gridOptions.context.pattern5Color = pattern5Color;
+    this.gridOptions.api.refreshView();
+    //this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+  }
+
+  next(pattern:number) {
+
+    if (pattern === 1) {
+
+      this.gridOptions.context.pattern1List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern1Pos = 0;
+      } else {
+        this.pattern1Pos = this.getNextPosition(this.posActual, this.gridOptions.context.pattern1List);
+        if (this.pattern1Pos === -1) {
+          this.pattern1Pos = 0;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern1List[this.pattern1Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern1List[this.pattern1Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern1List[this.pattern1Pos]);
+    } else if (pattern === 2) {
+
+      this.gridOptions.context.pattern2List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern2Pos = 0;
+      } else {
+        this.pattern2Pos = this.getNextPosition(this.posActual, this.gridOptions.context.pattern2List);
+        if (this.pattern2Pos === -1) {
+          this.pattern2Pos = 0;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern2List[this.pattern2Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern2List[this.pattern2Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern2List[this.pattern2Pos]);
+    } else if (pattern === 3) {
+
+      this.gridOptions.context.pattern3List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern3Pos = 0;
+      } else {
+        this.pattern3Pos = this.getNextPosition(this.posActual, this.gridOptions.context.pattern3List);
+        if (this.pattern3Pos === -1) {
+          this.pattern3Pos = 0;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern3List[this.pattern3Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern3List[this.pattern3Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern3List[this.pattern3Pos]);
+    } else if (pattern === 4) {
+
+      this.gridOptions.context.pattern4List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern4Pos = 0;
+      } else {
+        this.pattern4Pos = this.getNextPosition(this.posActual, this.gridOptions.context.pattern4List);
+        if (this.pattern4Pos === -1) {
+          this.pattern4Pos = 0;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern4List[this.pattern4Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern4List[this.pattern4Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern4List[this.pattern4Pos]);
+    } else if (pattern === 5) {
+
+      this.gridOptions.context.pattern5List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern5Pos = 0;
+      } else {
+        this.pattern5Pos = this.getNextPosition(this.posActual, this.gridOptions.context.pattern5List);
+        if (this.pattern5Pos === -1) {
+          this.pattern5Pos = 0;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern5List[this.pattern5Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern5List[this.pattern5Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern5List[this.pattern5Pos]);
+    }
+
+  }
+
+
+  prev(pattern:number) {
+    if (pattern === 1) {
+
+      this.gridOptions.context.pattern1List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern1Pos = this.gridOptions.context.pattern1List.length - 1;
+      } else {
+        this.pattern1Pos = this.getPrevPosition(this.posActual, this.gridOptions.context.pattern1List);
+        if (this.pattern1Pos === -1) {
+          this.pattern1Pos = this.gridOptions.context.pattern1List.length - 1;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern1List[this.pattern1Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern1List[this.pattern1Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern1List[this.pattern1Pos]);
+    } else if (pattern === 2) {
+
+      this.gridOptions.context.pattern2List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern2Pos = this.gridOptions.context.pattern2List.length - 1;
+      } else {
+        this.pattern2Pos = this.getPrevPosition(this.posActual, this.gridOptions.context.pattern2List);
+        if (this.pattern2Pos === -1) {
+          this.pattern2Pos = this.gridOptions.context.pattern2List.length - 1;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern2List[this.pattern2Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern2List[this.pattern2Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern2List[this.pattern2Pos]);
+    } else if (pattern === 3) {
+
+      this.gridOptions.context.pattern3List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern3Pos = this.gridOptions.context.pattern3List.length - 1;
+      } else {
+        this.pattern3Pos = this.getPrevPosition(this.posActual, this.gridOptions.context.pattern3List);
+        if (this.pattern3Pos === -1) {
+          this.pattern3Pos = this.gridOptions.context.pattern3List.length - 1;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern3List[this.pattern3Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern3List[this.pattern3Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern3List[this.pattern3Pos]);
+    } else if (pattern === 4) {
+
+      this.gridOptions.context.pattern4List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern4Pos = this.gridOptions.context.pattern4List.length - 1;
+      } else {
+        this.pattern4Pos = this.getPrevPosition(this.posActual, this.gridOptions.context.pattern4List);
+        if (this.pattern4Pos === -1) {
+          this.pattern4Pos = this.gridOptions.context.pattern4List.length - 1;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern4List[this.pattern4Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern4List[this.pattern4Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern4List[this.pattern4Pos]);
+    } else if (pattern === 5) {
+
+      this.gridOptions.context.pattern5List.sort(this.sorted);
+
+      if (this.posActual == -1) {
+        this.pattern5Pos = this.gridOptions.context.pattern5List.length - 1;
+      } else {
+        this.pattern5Pos = this.getPrevPosition(this.posActual, this.gridOptions.context.pattern5List);
+        if (this.pattern5Pos === -1) {
+          this.pattern5Pos = this.gridOptions.context.pattern5List.length - 1;
+        }
+      }
+
+      this.posActual = this.gridOptions.context.pattern5List[this.pattern5Pos];
+
+      this.gridOptions.api.selectIndex(this.gridOptions.context.pattern5List[this.pattern5Pos]);
+      this.gridOptions.api.ensureIndexVisible(this.gridOptions.context.pattern5List[this.pattern5Pos]);
+    }
+  }
 
   private createColumnDefs() {
-    let rowColor = function (params) {
+
+    let cellRendererLevel = function (params) {
+      let css:string;
+      let _class:string;
       if (params.data.level === 'ERROR') {
-        return 'log-level-error';
+        _class = 'label-danger';
       } else if (params.data.level === 'WARN') {
-        return 'log-level-warn';
+        _class = 'label-warning';
+      } else if (params.data.level === 'INFO') {
+        _class = 'label-info';
+      } else if (params.data.level === 'DEBUG') {
+        _class = 'label-success';
       } else {
-        return '';
+        _class = '';
       }
+
+      css = '<span class="label ' + _class + '"> ' + (params.data.level == undefined ? '' : params.data.level) + '</span>';
+      return css;
     }
 
     let cellRenderer = function (params) {
       return '<span title="the tooltip" style=" text-overflow: clip; overflow: visible; white-space: normal">' + params.data.message + '</span>';
     }
 
+    let getCellCss = function (params, css) {
+      css['border-color'] = 'black';
+      css['border-width'] = '1px';
+      if (((params.context.pattern1 != undefined) && params.context.pattern1 != '') &&
+        (params.data.message.toUpperCase().indexOf(params.context.pattern1.toUpperCase()) > -1)) {
+        css['color'] = params.context.pattern1Color;
+        if (params.context.pattern1List.indexOf(params.node.childIndex) == -1) {
+          params.context.pattern1List.push(params.node.childIndex);
+        }
+      } else if (((params.context.pattern2 != undefined) && params.context.pattern2 != '') &&
+        (params.data.message.toUpperCase().indexOf(params.context.pattern2.toUpperCase()) > -1)) {
+        css['color'] = params.context.pattern2Color;
+        if (params.context.pattern2List.indexOf(params.node.childIndex) == -1) {
+          params.context.pattern2List.push(params.node.childIndex);
+        }
+      } else if (((params.context.pattern3 != undefined) && params.context.pattern3 != '') &&
+        (params.data.message.toUpperCase().indexOf(params.context.pattern3.toUpperCase()) > -1)) {
+        css['color'] = params.context.pattern3Color;
+        if (params.context.pattern3List.indexOf(params.node.childIndex) == -1) {
+          params.context.pattern3List.push(params.node.childIndex);
+        }
+      } else if (((params.context.pattern4 != undefined) && params.context.pattern4 != '') &&
+        (params.data.message.toUpperCase().indexOf(params.context.pattern4.toUpperCase()) > -1)) {
+        css['color'] = params.context.pattern4Color;
+        if (params.context.pattern4List.indexOf(params.node.childIndex) == -1) {
+          params.context.pattern4List.push(params.node.childIndex);
+        }
+      } else if (((params.context.pattern5 != undefined) && params.context.pattern5 != '') &&
+        (params.data.message.toUpperCase().indexOf(params.context.pattern5.toUpperCase()) > -1)) {
+        css['color'] = params.context.pattern5Color;
+        if (params.context.pattern5List.indexOf(params.node.childIndex) == -1) {
+          params.context.pattern5List.push(params.node.childIndex);
+        }
+      }
+      return css;
+    }
+
+
+    let cellStyle = function (params) {
+      let css:any = {};
+      css = getCellCss(params, css);
+      return css;
+    }
+
+    let cellStyleCenter = function (params) {
+      let css:any = {'text-align': 'center'};
+      css = getCellCss(params, css);
+      return css;
+    }
+
     this.columnDefs = [
       {
         headerName: '#', width: 30, checkboxSelection: false, suppressSorting: true,
-        suppressMenu: true, pinned: true, cellClass: rowColor
+        suppressMenu: true, pinned: true, cellStyle: cellStyleCenter
       },
       {
         headerName: 'Time', width: 200, checkboxSelection: false, suppressSorting: true, field: "time",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellStyle: cellStyleCenter
       },
       {
         headerName: 'Level', width: 60, checkboxSelection: false, suppressSorting: true, field: "level",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellRenderer: cellRendererLevel, cellStyle: cellStyleCenter
       },
       {
         headerName: 'Type', width: 50, checkboxSelection: false, suppressSorting: true, field: "type",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellStyle: cellStyleCenter
       },
       {
         headerName: 'Thread', width: 170, checkboxSelection: false, suppressSorting: true, field: "thread",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellStyle: cellStyle
       },
       {
         headerName: 'Message', width: 600, checkboxSelection: false, suppressSorting: true, field: "message",
-        suppressMenu: true, pinned: false, cellClass: rowColor, cellRenderer: function (params) {
+        suppressMenu: true, pinned: false, cellRenderer: function (params) {
         return '<span style="text-overflow: clip; overflow: visible; white-space: normal" title="Message">' + (params.data.message == undefined ? '' : params.data.message) + '</span>';
-      }
+      }, cellStyle: cellStyle, focusCell: true
       },
       {
         headerName: 'Logger', width: 300, checkboxSelection: false, suppressSorting: true, field: "logger",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellStyle: cellStyle
       },
       {
         headerName: 'Host', width: 300, checkboxSelection: false, suppressSorting: true, field: "host",
-        suppressMenu: true, pinned: false, cellClass: rowColor
+        suppressMenu: true, pinned: false, cellStyle: cellStyle
       }
     ];
   }
@@ -134,7 +470,7 @@ export class GridComponent {
   private onModelUpdated() {
     console.log('onModelUpdated');
     this.calculateRowCount();
-    this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
+    //this.gridOptions.api.ensureIndexVisible(this.gridOptions.rowData.length - 1);
   }
 
 
@@ -146,23 +482,23 @@ export class GridComponent {
   }
 
   private onCellValueChanged($event) {
-    console.log('onCellValueChanged: ' + $event.oldValue + ' to ' + $event.newValue);
+    console.log('onCellValueChanged: ', $event.oldValue, ' to ', $event.newValue);
   }
 
   private onCellDoubleClicked($event) {
-    console.log('onCellDoubleClicked: ' + $event.rowIndex + ' ' + $event.colDef.field);
+    console.log('onCellDoubleClicked: ', $event.rowIndex, ' ', $event.colDef.field);
   }
 
   private onCellContextMenu($event) {
-    console.log('onCellContextMenu: ' + $event.rowIndex + ' ' + $event.colDef.field);
+    console.log('onCellContextMenu: ', $event.rowIndex, ' ', $event.colDef.field);
   }
 
   private onCellFocused($event) {
-    console.log('onCellFocused: (' + $event.rowIndex + ',' + $event.colIndex + ')');
+    console.log('onCellFocused: (', $event.rowIndex, ',', $event.colIndex, ')', $event);
   }
 
   private onRowSelected($event) {
-    console.log('onRowSelected: ' + $event.node.data.name);
+    console.log('onRowSelected: ', $event);
   }
 
   private onSelectionChanged() {
@@ -196,7 +532,7 @@ export class GridComponent {
   }
 
   private onRowClicked($event) {
-    console.log('onRowClicked: ' + $event.node.data);
+    console.log('onRowClicked: ', $event);
   }
 
   private onQuickFilterChanged($event) {
@@ -204,7 +540,7 @@ export class GridComponent {
   }
 
   private onColumnEvent($event) {
-    console.log('onColumnEvent: ' + $event);
+    console.log('onColumnEvent: ', $event);
     this.gridOptions.enableColResize = true;
     let width = 601;
     if ($event.type != "columnEverythingChanged") {
