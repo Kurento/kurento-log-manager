@@ -1,3 +1,7 @@
+# DEPRECATION NOTICE
+
+*This project is no longer maintained. Please use [OpenVidu Project](https://openvidu.io) instead, which provides an integrated system to aggregate and store Kurento Media Server logs.*
+
 # Introduction
 
 Kurento Log Manager based on a modular seed project for Angular 2 apps.
